@@ -37,7 +37,7 @@ import org.toasthub.core.general.model.RestResponse;
 import org.toasthub.core.general.service.EntityManagerMainSvc;
 import org.toasthub.core.general.service.MailSvc;
 import org.toasthub.core.general.service.UtilSvc;
-import org.toasthub.core.preference.model.AppCachePage;
+import org.toasthub.core.general.utils.TenantContext;
 import org.toasthub.core.preference.model.AppCachePageUtil;
 import org.toasthub.core.preference.model.AppPageOptionValue;
 import org.toasthub.security.model.LoginLog;
@@ -60,7 +60,7 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 	UtilSvc utilSvc;
 	
 	@Autowired 
-	AppCachePage appCachePage;
+	AppCachePageUtil appCachePageUtil;
 	
 	@Autowired 
 	EntityManagerMainSvc entityManagerMainSvc;
@@ -74,11 +74,11 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 	// Processor
 	public void process(RestRequest request, RestResponse response) {
 		String action = (String) request.getParams().get(BaseEntity.ACTION);
-		
+		String tenant = TenantContext.getURLDomain();
 		switch (action) {
 		case "INIT": 
-			request.addParam(AppCachePage.APPPAGEPARAMLOC, AppCachePage.RESPONSE);
-			appCachePage.getPageInfo(request,response);
+			request.addParam(AppCachePageUtil.APPPAGEPARAMLOC, AppCachePageUtil.RESPONSE);
+			appCachePageUtil.getPageInfo(request,response);
 			
 			if (request.containsParam("urlaction") && "emailconfirm".equals(request.getParam("urlaction"))){
 				RestRequest subRequest = new RestRequest();
@@ -139,7 +139,7 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 			AppCachePageUtil.addAppText(request, "GLOBAL_SERVICE","REGISTRATION_SERVICE");
 			AppCachePageUtil.addAppOption(request, "REGISTRATION_SERVICE");
 			
-			appCachePage.getPageInfo(request,response);
+			appCachePageUtil.getPageInfo(request,response);
 			
 			// service status
 			AppPageOptionValue serviceStatus = AppCachePageUtil.getAppOption(request, "REGISTRATION_SERVICE", "REGISTRATION_SERVICE");
@@ -233,7 +233,7 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 		}
 		AppCachePageUtil.addAppText(request, "GLOBAL_SERVICE","LOGIN_SERVICE");
 		
-		appCachePage.getPageInfo(request,response);
+		appCachePageUtil.getPageInfo(request,response);
 		
 		// validate
 		utilSvc.validateParams(request, response);
@@ -287,7 +287,7 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 			}
 			AppCachePageUtil.addAppText(request, "GLOBAL_SERVICE","FORGOTPASSWORD_SERVICE");
 			
-			appCachePage.getPageInfo(request,response);
+			appCachePageUtil.getPageInfo(request,response);
 			
 			// validate
 			utilSvc.validateParams(request, response);
@@ -345,7 +345,7 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 		}
 		AppCachePageUtil.addAppText(request, "GLOBAL_SERVICE","PASSWORD_CHANGE_SERVICE");
 		
-		appCachePage.getPageInfo(request,response);
+		appCachePageUtil.getPageInfo(request,response);
 		
 		// validate
 		utilSvc.validateParams(request, response);
@@ -513,7 +513,7 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 		AppCachePageUtil.addAppForm(request, "CONFIRM_EMAIL_SERVICE");
 		AppCachePageUtil.addAppText(request, "GLOBAL_SERVICE","CONFIRM_EMAIL_SERVICE");
 		
-		appCachePage.getPageInfo(request,response);
+		appCachePageUtil.getPageInfo(request,response);
 		
 		// validate
 		utilSvc.validateParams(request, response);

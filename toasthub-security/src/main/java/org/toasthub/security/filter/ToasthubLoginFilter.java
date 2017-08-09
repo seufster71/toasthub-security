@@ -27,6 +27,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
 import org.toasthub.core.general.model.RestRequest;
 import org.toasthub.core.general.model.RestResponse;
+import org.toasthub.core.general.utils.TenantContext;
 import org.toasthub.security.model.User;
 import org.toasthub.security.service.UserManagerSvc;
 
@@ -70,7 +71,7 @@ public class ToasthubLoginFilter extends AbstractAuthenticationProcessingFilter 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Request is to process authentication");
 		}
-
+		String tenant = TenantContext.getURLDomain();
 		Authentication authResult = null;
 		RestResponse restResponse = new RestResponse();
 		try {
