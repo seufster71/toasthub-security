@@ -16,7 +16,6 @@
 
 package org.toasthub.security.repository;
 
-import java.security.Permission;
 import java.util.List;
 
 import javax.persistence.Query;
@@ -29,6 +28,7 @@ import org.toasthub.core.general.model.RestResponse;
 import org.toasthub.core.general.service.EntityManagerSecuritySvc;
 import org.toasthub.core.general.service.UtilSvc;
 import org.toasthub.security.model.BaseEntity;
+import org.toasthub.security.model.Permission;
 
 @Repository("PermissionDao")
 @Transactional("TransactionManagerSecurity")
