@@ -11,19 +11,18 @@ import org.toasthub.core.general.api.View;
 import org.toasthub.core.general.handler.ServiceProcessor;
 import org.toasthub.core.general.model.RestRequest;
 import org.toasthub.core.general.model.RestResponse;
-import org.toasthub.core.general.model.ServiceCrawler;
-import org.toasthub.core.general.service.EntityManagerMainSvc;
+import org.toasthub.core.general.model.AppCacheServiceCrawler;
 import org.toasthub.core.general.service.UtilSvc;
 import org.toasthub.security.model.BaseEntity;
 
 import com.fasterxml.jackson.annotation.JsonView;
+
 @RestController()
 @RequestMapping("/api/login")
 public class LoginWS {
 	
-	@Autowired EntityManagerMainSvc entityManagerMainSvc;
 	@Autowired UtilSvc utilSvc;
-	@Autowired ServiceCrawler serviceLocator;
+	@Autowired AppCacheServiceCrawler serviceLocator;
 	
 	@JsonView(View.Public.class)
 	@RequestMapping(value = "callService", method = RequestMethod.POST)
@@ -34,22 +33,16 @@ public class LoginWS {
 		utilSvc.setupDefaults(request);
 		// validate request
 		
-		response.addParam(BaseEntity.APPNAME,entityManagerMainSvc.getAppName());
-		// response
-		response.addParam(BaseEntity.CONTEXTPATH, entityManagerMainSvc.getAppName());
 		// call service locator
-		ServiceProcessor x = serviceLocator.getService("LOGIN",(String) request.getParams().get(BaseEntity.SERVICE),
-				(String) request.getParam(BaseEntity.SVCAPIVERSION), (String) request.getParam(BaseEntity.SVCAPPVERSION),
-				entityManagerMainSvc.getAppDomain());
+		ServiceProcessor x = serviceLocator.getServiceProcessor("LOGIN",(String) request.getParams().get(BaseEntity.SERVICE),
+				(String) request.getParam(BaseEntity.SVCAPIVERSION), (String) request.getParam(BaseEntity.SVCAPPVERSION));
 		// process 
 		if (x != null) {
 			x.process(request, response);
 		} else {
-		
+			utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, "Service is not available", response);
 		}
-		// response
-		response.addParam(BaseEntity.PAGESTART, request.getParam(BaseEntity.PAGESTART));
-		response.addParam(BaseEntity.PAGELIMIT, request.getParam(BaseEntity.PAGELIMIT));
+
 		return response;
 	}
 	
@@ -57,11 +50,6 @@ public class LoginWS {
 	@RequestMapping(value = "authenticate", method = RequestMethod.POST)
 	public void authenticate(HttpServletRequest request) {
 		
-		//RestResponse response = new RestResponse();
-		//Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		//if (auth != null && auth.isAuthenticated()){
-		//	utilSvc.addStatus(RestResponse.INFO, RestResponse.SUCCESS, "TRUE", response);
-		//}
-		//return response;
+		// This is placeholder for filter
 	}
 }
