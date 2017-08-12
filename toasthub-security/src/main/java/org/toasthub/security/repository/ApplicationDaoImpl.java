@@ -23,12 +23,12 @@ import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.toasthub.core.general.model.GlobalConstant;
 import org.toasthub.core.general.model.RestRequest;
 import org.toasthub.core.general.model.RestResponse;
 import org.toasthub.core.general.service.EntityManagerSecuritySvc;
 import org.toasthub.core.general.service.UtilSvc;
 import org.toasthub.security.model.Application;
-import org.toasthub.security.model.BaseEntity;
 
 
 @Repository("ApplicationDao")
@@ -46,13 +46,13 @@ public class ApplicationDaoImpl implements ApplicationDao {
 		String queryStr = "SELECT DISTINCT a FROM Application AS a JOIN FETCH a.title AS t JOIN FETCH t.langTexts as lt ";
 		
 		boolean and = false;
-		if (request.containsParam(BaseEntity.ACTIVE)) {
+		if (request.containsParam(GlobalConstant.ACTIVE)) {
 			if (!and) { queryStr += " WHERE "; }
 			queryStr += "a.active =:active ";
 			and = true;
 		}
 		
-		if (request.containsParam(BaseEntity.SEARCHVALUE) && !request.getParam(BaseEntity.SEARCHVALUE).equals("")){
+		if (request.containsParam(GlobalConstant.SEARCHVALUE) && !request.getParam(GlobalConstant.SEARCHVALUE).equals("")){
 			if (!and) { queryStr += " WHERE "; }
 			queryStr += "lt.lang =:lang AND lt.text LIKE :searchValue"; 
 			and = true;
@@ -60,35 +60,35 @@ public class ApplicationDaoImpl implements ApplicationDao {
 		
 		Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
 		
-		if (request.containsParam(BaseEntity.ACTIVE)) {
-			query.setParameter("active", (Boolean) request.getParam(BaseEntity.ACTIVE));
+		if (request.containsParam(GlobalConstant.ACTIVE)) {
+			query.setParameter("active", (Boolean) request.getParam(GlobalConstant.ACTIVE));
 		} 
 		
-		if (request.containsParam(BaseEntity.SEARCHVALUE) && !request.getParam(BaseEntity.SEARCHVALUE).equals("")){
-			query.setParameter("searchValue", "%"+((String)request.getParam(BaseEntity.SEARCHVALUE)).toLowerCase()+"%");
-			query.setParameter("lang",request.getParam(BaseEntity.LANG));
+		if (request.containsParam(GlobalConstant.SEARCHVALUE) && !request.getParam(GlobalConstant.SEARCHVALUE).equals("")){
+			query.setParameter("searchValue", "%"+((String)request.getParam(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+			query.setParameter("lang",request.getParam(GlobalConstant.LANG));
 		}
-		if (request.containsParam(BaseEntity.PAGELIMIT) && (Integer) request.getParam(BaseEntity.PAGELIMIT) != 0){
-			query.setFirstResult((Integer) request.getParam(BaseEntity.PAGESTART));
-			query.setMaxResults((Integer) request.getParam(BaseEntity.PAGELIMIT));
+		if (request.containsParam(GlobalConstant.PAGELIMIT) && (Integer) request.getParam(GlobalConstant.PAGELIMIT) != 0){
+			query.setFirstResult((Integer) request.getParam(GlobalConstant.PAGESTART));
+			query.setMaxResults((Integer) request.getParam(GlobalConstant.PAGELIMIT));
 		}
 		@SuppressWarnings("unchecked")
 		List<Application> applications = query.getResultList();
 
-		response.addParam(BaseEntity.ITEMS, applications);
+		response.addParam(GlobalConstant.ITEMS, applications);
 	}
 
 	@Override
 	public void itemCount(RestRequest request, RestResponse response) throws Exception {
 		String queryStr = "SELECT COUNT(DISTINCT a) FROM Application as a JOIN a.title AS t JOIN t.langTexts as lt ";
 		boolean and = false;
-		if (request.containsParam(BaseEntity.ACTIVE)) {
+		if (request.containsParam(GlobalConstant.ACTIVE)) {
 			if (!and) { queryStr += " WHERE "; }
 			queryStr += "a.active =:active ";
 			and = true;
 		}
 		
-		if (request.containsParam(BaseEntity.SEARCHVALUE) && !request.getParam(BaseEntity.SEARCHVALUE).equals("")){
+		if (request.containsParam(GlobalConstant.SEARCHVALUE) && !request.getParam(GlobalConstant.SEARCHVALUE).equals("")){
 			if (!and) { queryStr += " WHERE "; }
 			queryStr += "lt.lang =:lang AND lt.text LIKE :searchValue"; 
 			and = true;
@@ -96,33 +96,33 @@ public class ApplicationDaoImpl implements ApplicationDao {
 
 		Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
 		
-		if (request.containsParam(BaseEntity.ACTIVE)) {
-			query.setParameter("active", (Boolean) request.getParam(BaseEntity.ACTIVE));
+		if (request.containsParam(GlobalConstant.ACTIVE)) {
+			query.setParameter("active", (Boolean) request.getParam(GlobalConstant.ACTIVE));
 		} 
 		
-		if (request.containsParam(BaseEntity.SEARCHVALUE) && !request.getParam(BaseEntity.SEARCHVALUE).equals("")){
-			query.setParameter("searchValue", "%"+((String)request.getParam(BaseEntity.SEARCHVALUE)).toLowerCase()+"%");
-			query.setParameter("lang",request.getParam(BaseEntity.LANG));
+		if (request.containsParam(GlobalConstant.SEARCHVALUE) && !request.getParam(GlobalConstant.SEARCHVALUE).equals("")){
+			query.setParameter("searchValue", "%"+((String)request.getParam(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+			query.setParameter("lang",request.getParam(GlobalConstant.LANG));
 		}
 		
 		Long count = (Long) query.getSingleResult();
 		if (count == null){
 			count = 0l;
 		}
-		response.addParam(BaseEntity.ITEMCOUNT, count);
+		response.addParam(GlobalConstant.ITEMCOUNT, count);
 		
 	}
 
 	@Override
 	public void item(RestRequest request, RestResponse response) throws Exception {
-		if (request.containsParam(BaseEntity.ITEMID) && !"".equals(request.getParam(BaseEntity.ITEMID))) {
+		if (request.containsParam(GlobalConstant.ITEMID) && !"".equals(request.getParam(GlobalConstant.ITEMID))) {
 			String queryStr = "SELECT a FROM Application AS a JOIN FETCH a.title AS t JOIN FETCH t.langTexts WHERE a.id =:id";
 			Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
 		
-			query.setParameter("id", new Long((String) request.getParam(BaseEntity.ITEMID)));
+			query.setParameter("id", new Long((String) request.getParam(GlobalConstant.ITEMID)));
 			Application application = (Application) query.getSingleResult();
 			
-			response.addParam(BaseEntity.ITEM, application);
+			response.addParam(GlobalConstant.ITEM, application);
 		} else {
 			utilSvc.addStatus(RestResponse.ERROR, RestResponse.ACTIONFAILED, "Missing ID", response);
 		}

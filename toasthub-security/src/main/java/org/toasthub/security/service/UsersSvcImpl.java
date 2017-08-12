@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.toasthub.core.general.handler.ServiceProcessor;
-import org.toasthub.core.general.model.BaseEntity;
+import org.toasthub.core.general.model.GlobalConstant;
 import org.toasthub.core.general.model.RestRequest;
 import org.toasthub.core.general.model.RestResponse;
 import org.toasthub.core.general.service.UtilSvc;
@@ -42,7 +42,7 @@ public class UsersSvcImpl implements ServiceProcessor, UsersSvc {
 	AppCachePageUtil appCachePageUtil;
 
 	public void process(RestRequest request, RestResponse response) {
-		String action = (String) request.getParams().get(BaseEntity.ACTION);
+		String action = (String) request.getParams().get(GlobalConstant.ACTION);
 		
 		Long count = 0l;
 		switch (action) {
@@ -52,23 +52,23 @@ public class UsersSvcImpl implements ServiceProcessor, UsersSvc {
 			this.initParams(request);
 			
 			this.itemCount(request, response);
-			count = (Long) response.getParam(BaseEntity.ITEMCOUNT);
+			count = (Long) response.getParam(GlobalConstant.ITEMCOUNT);
 			this.itemColumns(request, response);
 			if (count != null && count > 0){
 				this.items(request, response);
 			}
-			response.addParam(BaseEntity.ITEMNAME, request.getParam(BaseEntity.ITEMNAME));
+			response.addParam(GlobalConstant.ITEMNAME, request.getParam(GlobalConstant.ITEMNAME));
 			break;
 		case "LIST":
 			this.initParams(request);
 			
 			this.itemCount(request, response);
-			count = (Long) response.getParam(BaseEntity.ITEMCOUNT);
+			count = (Long) response.getParam(GlobalConstant.ITEMCOUNT);
 			this.itemColumns(request, response);
 			if (count != null && count > 0){
 				this.items(request, response);
 			}
-			response.addParam(BaseEntity.ITEMNAME, request.getParam(BaseEntity.ITEMNAME));
+			response.addParam(GlobalConstant.ITEMNAME, request.getParam(GlobalConstant.ITEMNAME));
 			break;
 		case "SHOW":
 			this.item(request, response);
@@ -91,17 +91,17 @@ public class UsersSvcImpl implements ServiceProcessor, UsersSvc {
 	}
 	
 	protected void initParams(RestRequest request) {
-		if (!request.containsParam(BaseEntity.SEARCHCOLUMN)){
-			request.addParam(BaseEntity.SEARCHCOLUMN, "lastname");
+		if (!request.containsParam(GlobalConstant.SEARCHCOLUMN)){
+			request.addParam(GlobalConstant.SEARCHCOLUMN, "lastname");
 		}
-		if (!request.containsParam(BaseEntity.ITEMNAME)){
-			request.addParam(BaseEntity.ITEMNAME, "User");
+		if (!request.containsParam(GlobalConstant.ITEMNAME)){
+			request.addParam(GlobalConstant.ITEMNAME, "User");
 		}
-		if (!request.containsParam(BaseEntity.ORDERCOLUMN)) {
-			request.addParam(BaseEntity.ORDERCOLUMN, "firstname,lastname");
+		if (!request.containsParam(GlobalConstant.ORDERCOLUMN)) {
+			request.addParam(GlobalConstant.ORDERCOLUMN, "firstname,lastname");
 		}
-		if (!request.containsParam(BaseEntity.ORDERDIR)) {
-			request.addParam(BaseEntity.ORDERDIR, "ASC");
+		if (!request.containsParam(GlobalConstant.ORDERDIR)) {
+			request.addParam(GlobalConstant.ORDERDIR, "ASC");
 		}
 	}
 	
@@ -134,7 +134,7 @@ public class UsersSvcImpl implements ServiceProcessor, UsersSvc {
 	}
 	
 	public void itemColumns(RestRequest request, RestResponse response){
-		String itemName = (String) request.getParam(BaseEntity.ITEMNAME);
+		String itemName = (String) request.getParam(GlobalConstant.ITEMNAME);
 		if (itemName != null && itemName.equals("User")) {
 			request.addParam("columns",User.columns);
 		}

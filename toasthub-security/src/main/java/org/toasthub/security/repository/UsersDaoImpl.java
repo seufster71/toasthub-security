@@ -27,11 +27,11 @@ import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.toasthub.core.general.model.GlobalConstant;
 import org.toasthub.core.general.model.RestRequest;
 import org.toasthub.core.general.model.RestResponse;
 import org.toasthub.core.general.service.EntityManagerSecuritySvc;
 import org.toasthub.core.general.service.UtilSvc;
-import org.toasthub.security.model.BaseEntity;
 import org.toasthub.security.model.Role;
 import org.toasthub.security.model.User;
 
@@ -112,7 +112,7 @@ public class UsersDaoImpl implements UsersDao {
 	
 	//@Authorize
 	public void updateUser(RestRequest request, RestResponse response) throws Exception {
-		User User = (User) request.getParam(BaseEntity.ITEM);
+		User User = (User) request.getParam(GlobalConstant.ITEM);
 		entityManagerSecuritySvc.getInstance().merge(User);
 	}
 	
@@ -122,13 +122,13 @@ public class UsersDaoImpl implements UsersDao {
 		String queryStr = "SELECT DISTINCT u FROM User AS u ";
 		
 		boolean and = false;
-		if (request.containsParam(BaseEntity.ACTIVE)) {
+		if (request.containsParam(GlobalConstant.ACTIVE)) {
 			if (!and) { queryStr += " WHERE "; }
 			queryStr += "u.active =:active ";
 			and = true;
 		}
 		
-		if (request.containsParam(BaseEntity.SEARCHVALUE) && !request.getParam(BaseEntity.SEARCHVALUE).equals("")){
+		if (request.containsParam(GlobalConstant.SEARCHVALUE) && !request.getParam(GlobalConstant.SEARCHVALUE).equals("")){
 			if (!and) { queryStr += " WHERE "; } else { queryStr += " AND "; }
 			queryStr += " u.firstname LIKE :searchValue OR u.lastname LIKE :searchValue "; 
 			and = true;
@@ -136,34 +136,34 @@ public class UsersDaoImpl implements UsersDao {
 		
 		Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
 		
-		if (request.containsParam(BaseEntity.ACTIVE)) {
-			query.setParameter("active", (Boolean) request.getParam(BaseEntity.ACTIVE));
+		if (request.containsParam(GlobalConstant.ACTIVE)) {
+			query.setParameter("active", (Boolean) request.getParam(GlobalConstant.ACTIVE));
 		} 
 		
-		if (request.containsParam(BaseEntity.SEARCHVALUE) && !request.getParam(BaseEntity.SEARCHVALUE).equals("")){
-			query.setParameter("searchValue", "%"+((String)request.getParam(BaseEntity.SEARCHVALUE)).toLowerCase()+"%");
+		if (request.containsParam(GlobalConstant.SEARCHVALUE) && !request.getParam(GlobalConstant.SEARCHVALUE).equals("")){
+			query.setParameter("searchValue", "%"+((String)request.getParam(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
 		}
-		if (request.containsParam(BaseEntity.PAGELIMIT) && (Integer) request.getParam(BaseEntity.PAGELIMIT) != 0){
-			query.setFirstResult((Integer) request.getParam(BaseEntity.PAGESTART));
-			query.setMaxResults((Integer) request.getParam(BaseEntity.PAGELIMIT));
+		if (request.containsParam(GlobalConstant.PAGELIMIT) && (Integer) request.getParam(GlobalConstant.PAGELIMIT) != 0){
+			query.setFirstResult((Integer) request.getParam(GlobalConstant.PAGESTART));
+			query.setMaxResults((Integer) request.getParam(GlobalConstant.PAGELIMIT));
 		}
 		@SuppressWarnings("unchecked")
 		List<User> users = query.getResultList();
 
-		response.addParam(BaseEntity.ITEMS, users);
+		response.addParam(GlobalConstant.ITEMS, users);
 	}
 
 	@Override
 	public void itemCount(RestRequest request, RestResponse response) throws Exception {
 		String queryStr = "SELECT COUNT(*) FROM User AS u ";
 		boolean and = false;
-		if (request.containsParam(BaseEntity.ACTIVE)) {
+		if (request.containsParam(GlobalConstant.ACTIVE)) {
 			if (!and) { queryStr += " WHERE "; }
 			queryStr += "u.active =:active ";
 			and = true;
 		}
 		
-		if (request.containsParam(BaseEntity.SEARCHVALUE) && !request.getParam(BaseEntity.SEARCHVALUE).equals("")){
+		if (request.containsParam(GlobalConstant.SEARCHVALUE) && !request.getParam(GlobalConstant.SEARCHVALUE).equals("")){
 			if (!and) { queryStr += " WHERE "; } else { queryStr += " AND "; }
 			queryStr += " u.firstname LIKE :searchValue OR u.lastname LIKE :searchValue "; 
 			and = true;
@@ -171,32 +171,32 @@ public class UsersDaoImpl implements UsersDao {
 
 		Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
 		
-		if (request.containsParam(BaseEntity.ACTIVE)) {
-			query.setParameter("active", (Boolean) request.getParam(BaseEntity.ACTIVE));
+		if (request.containsParam(GlobalConstant.ACTIVE)) {
+			query.setParameter("active", (Boolean) request.getParam(GlobalConstant.ACTIVE));
 		} 
 		
-		if (request.containsParam(BaseEntity.SEARCHVALUE) && !request.getParam(BaseEntity.SEARCHVALUE).equals("")){
-			query.setParameter("searchValue", "%"+((String)request.getParam(BaseEntity.SEARCHVALUE)).toLowerCase()+"%");
+		if (request.containsParam(GlobalConstant.SEARCHVALUE) && !request.getParam(GlobalConstant.SEARCHVALUE).equals("")){
+			query.setParameter("searchValue", "%"+((String)request.getParam(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
 		}
 		
 		Long count = (Long) query.getSingleResult();
 		if (count == null){
 			count = 0l;
 		}
-		response.addParam(BaseEntity.ITEMCOUNT, count);
+		response.addParam(GlobalConstant.ITEMCOUNT, count);
 		
 	}
 
 	@Override
 	public void item(RestRequest request, RestResponse response) throws Exception {
-		if (request.containsParam(BaseEntity.ITEMID) && !"".equals(request.getParam(BaseEntity.ITEMID))) {
+		if (request.containsParam(GlobalConstant.ITEMID) && !"".equals(request.getParam(GlobalConstant.ITEMID))) {
 			String queryStr = "SELECT u FROM User AS u WHERE u.id =:id";
 			Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
 		
-			query.setParameter("id", new Long((Integer) request.getParam(BaseEntity.ITEMID)));
+			query.setParameter("id", new Long((Integer) request.getParam(GlobalConstant.ITEMID)));
 			User user = (User) query.getSingleResult();
 			
-			response.addParam(BaseEntity.ITEM, user);
+			response.addParam(GlobalConstant.ITEM, user);
 		} else {
 			utilSvc.addStatus(RestResponse.ERROR, RestResponse.ACTIONFAILED, "Missing ID", response);
 		}

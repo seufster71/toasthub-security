@@ -31,7 +31,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.toasthub.core.general.handler.ServiceProcessor;
-import org.toasthub.core.general.model.BaseEntity;
+import org.toasthub.core.general.model.GlobalConstant;
 import org.toasthub.core.general.model.RestRequest;
 import org.toasthub.core.general.model.RestResponse;
 import org.toasthub.core.general.service.EntityManagerMainSvc;
@@ -73,7 +73,7 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 	
 	// Processor
 	public void process(RestRequest request, RestResponse response) {
-		String action = (String) request.getParams().get(BaseEntity.ACTION);
+		String action = (String) request.getParams().get(GlobalConstant.ACTION);
 		String tenant = TenantContext.getURLDomain();
 		switch (action) {
 		case "INIT": 
@@ -83,7 +83,7 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 			if (request.containsParam("urlaction") && "emailconfirm".equals(request.getParam("urlaction"))){
 				RestRequest subRequest = new RestRequest();
 				subRequest.addParam("inputFields", request.getParam("inputFields"));
-				subRequest.addParam(BaseEntity.LANG, request.getParam(BaseEntity.LANG));
+				subRequest.addParam(GlobalConstant.LANG, request.getParam(GlobalConstant.LANG));
 				this.confirmEmail(subRequest, response);
 			}
 			this.init(request,response);
@@ -123,7 +123,7 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 	
 	public void init(RestRequest request, RestResponse response) {
 		// get custom page Layout
-		response.addParam(BaseEntity.PAGELAYOUT,entityManagerMainSvc.getPublicLayout());
+		response.addParam(GlobalConstant.PAGELAYOUT,entityManagerMainSvc.getPublicLayout());
 	}
 	
 	public void registerCheckNameInit(RestRequest request, RestResponse response) {
@@ -149,16 +149,16 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 			}
 			// validate
 			utilSvc.validateParams(request, response);
-			if ((Boolean) request.getParam(BaseEntity.VALID) == false) {
+			if ((Boolean) request.getParam(GlobalConstant.VALID) == false) {
 				utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, AppCachePageUtil.getAppText(request, "GLOBAL_SERVICE", "GLOBAL_SERVICE_VALIDATION_ERROR").getValue(), response);
 				return;
 			}
 			// create empty user to fill
-			request.addParam(BaseEntity.ITEM, new User());
+			request.addParam(GlobalConstant.ITEM, new User());
 			// marshall
 			utilSvc.marshallFields(request, response);
 			
-			User user = (User) request.getParam(BaseEntity.ITEM);
+			User user = (User) request.getParam(GlobalConstant.ITEM);
 			// set the default language of user
 			user.setLang("en");
 			// did password match
@@ -237,7 +237,7 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 		
 		// validate
 		utilSvc.validateParams(request, response);
-		if ((Boolean) request.getParam(BaseEntity.VALID) == false) {
+		if ((Boolean) request.getParam(GlobalConstant.VALID) == false) {
 			utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, AppCachePageUtil.getAppText(request, "GLOBAL_SERVICE", "GLOBAL_SERVICE_VALIDATION_ERROR").getValue(), response);
 			return;
 		}
@@ -291,7 +291,7 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 			
 			// validate
 			utilSvc.validateParams(request, response);
-			if ((Boolean) request.getParam(BaseEntity.VALID) == false) {
+			if ((Boolean) request.getParam(GlobalConstant.VALID) == false) {
 				utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, AppCachePageUtil.getAppText(request, "GLOBAL_SERVICE", "GLOBAL_SERVICE_VALIDATION_ERROR").getValue(), response);
 				return;
 			}
@@ -349,7 +349,7 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 		
 		// validate
 		utilSvc.validateParams(request, response);
-		if ((Boolean) request.getParam(BaseEntity.VALID) == false) {
+		if ((Boolean) request.getParam(GlobalConstant.VALID) == false) {
 			utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, AppCachePageUtil.getAppText(request, "GLOBAL_SERVICE", "GLOBAL_SERVICE_VALIDATION_ERROR").getValue(), response);
 			return;
 		}
@@ -517,7 +517,7 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 		
 		// validate
 		utilSvc.validateParams(request, response);
-		if ((Boolean) request.getParam(BaseEntity.VALID) == false) {
+		if ((Boolean) request.getParam(GlobalConstant.VALID) == false) {
 			utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, AppCachePageUtil.getAppText(request,"GLOBAL_SERVICE","GLOBAL_SERVICE_VALIDATION_ERROR").getValue(), response);
 			return;
 		}
