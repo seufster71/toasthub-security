@@ -51,7 +51,7 @@ public class LoginWS {
 			} else {
 				// use remote service
 				request.addParam(GlobalConstant.MICROSERVICENAME, "toasthub-m-security");
-				request.addParam(GlobalConstant.MICROSERVICEPATH, "api/login");
+				request.addParam(GlobalConstant.MICROSERVICEPATH, "api/login/callService");
 				microServiceClient.process(request, response);
 			}
 		} else {
