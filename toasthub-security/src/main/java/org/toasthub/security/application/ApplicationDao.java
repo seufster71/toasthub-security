@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package org.toasthub.security.repository;
+package org.toasthub.security.application;
+
+import org.toasthub.security.common.BaseDao;
 
 public interface ApplicationDao extends BaseDao {
 

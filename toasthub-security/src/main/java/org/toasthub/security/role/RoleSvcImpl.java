@@ -14,27 +14,26 @@
  * limitations under the License.
  */
 
-package org.toasthub.security.service;
+package org.toasthub.security.role;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.toasthub.core.common.UtilSvc;
 import org.toasthub.core.general.handler.ServiceProcessor;
 import org.toasthub.core.general.model.GlobalConstant;
 import org.toasthub.core.general.model.RestRequest;
 import org.toasthub.core.general.model.RestResponse;
-import org.toasthub.core.general.service.UtilSvc;
-import org.toasthub.security.repository.ApplicationDao;
 
-@Service("ApplicationSvc")
-public class ApplicationSvcImpl implements ServiceProcessor, ApplicationSvc {
+@Service("RoleSvc")
+public class RoleSvcImpl implements ServiceProcessor, RoleSvc {
 
 	@Autowired
-	@Qualifier("ApplicationDao")
-	protected ApplicationDao applicationDao;
+	@Qualifier("RoleDao")
+	RoleDao roleDao;
 	
-	@Autowired
-	protected UtilSvc utilSvc;
+	@Autowired 
+	UtilSvc utilSvc;
 	
 	public void process(RestRequest request, RestResponse response) {
 		String action = (String) request.getParams().get(GlobalConstant.ACTION);
@@ -60,7 +59,7 @@ public class ApplicationSvcImpl implements ServiceProcessor, ApplicationSvc {
 	@Override
 	public void itemCount(RestRequest request, RestResponse response) {
 		try {
-			applicationDao.itemCount(request, response);
+			roleDao.itemCount(request, response);
 		} catch (Exception e) {
 			utilSvc.addStatus(RestResponse.ERROR, RestResponse.ACTIONFAILED, "Count failed", response);
 			e.printStackTrace();
@@ -70,7 +69,7 @@ public class ApplicationSvcImpl implements ServiceProcessor, ApplicationSvc {
 	@Override
 	public void item(RestRequest request, RestResponse response) {
 		try {
-			applicationDao.item(request, response);
+			roleDao.item(request, response);
 		} catch (Exception e) {
 			utilSvc.addStatus(RestResponse.ERROR, RestResponse.ACTIONFAILED, "Item failed", response);
 			e.printStackTrace();
@@ -80,7 +79,7 @@ public class ApplicationSvcImpl implements ServiceProcessor, ApplicationSvc {
 	@Override
 	public void items(RestRequest request, RestResponse response) {
 		try {
-			applicationDao.items(request, response);
+			roleDao.items(request, response);
 		} catch (Exception e) {
 			utilSvc.addStatus(RestResponse.ERROR, RestResponse.ACTIONFAILED, "List failed", response);
 			e.printStackTrace();

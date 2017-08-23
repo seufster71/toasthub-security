@@ -14,12 +14,20 @@
  * limitations under the License.
  */
 
-package org.toasthub.security.repository;
+package org.toasthub.security.users;
 
 import org.toasthub.core.general.model.RestRequest;
 import org.toasthub.core.general.model.RestResponse;
+import org.toasthub.security.common.BaseDao;
+import org.toasthub.security.model.User;
 
-public interface RoleDao extends BaseDao {
+public interface UsersDao extends BaseDao {
 
-	void userRoleIds(RestRequest request, RestResponse response);
+	public void saveUser(RestRequest request, RestResponse response) throws Exception;
+	public void resetPassword(String username, String password, String salt, String sessionToken) throws Exception;
+	public void changePassword(String username, String password, String salt, String sessionToken) throws Exception;
+	public User findUser(String username) throws Exception;
+	public User findUserByEmail(String email) throws Exception;
+	public void updateUser(RestRequest request, RestResponse response) throws Exception;
+	
 }

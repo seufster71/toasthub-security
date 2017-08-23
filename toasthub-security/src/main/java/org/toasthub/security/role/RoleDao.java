@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package org.toasthub.security.service;
+package org.toasthub.security.role;
 
 import org.toasthub.core.general.model.RestRequest;
 import org.toasthub.core.general.model.RestResponse;
+import org.toasthub.security.common.BaseDao;
 
-public interface UsersSvc {
+public interface RoleDao extends BaseDao {
 
-	public void item(RestRequest request, RestResponse response);
-	public void saveUser(RestRequest request, RestResponse response);
-	public void itemColumns(RestRequest request, RestResponse response);
-	public void itemCount(RestRequest request, RestResponse response);
+	void userRoleIds(RestRequest request, RestResponse response);
 }

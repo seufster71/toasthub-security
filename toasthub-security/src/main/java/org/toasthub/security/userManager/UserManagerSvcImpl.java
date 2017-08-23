@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.toasthub.security.service;
+package org.toasthub.security.userManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,20 +30,19 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
+import org.toasthub.core.common.EntityManagerMainSvc;
+import org.toasthub.core.common.UtilSvc;
 import org.toasthub.core.general.handler.ServiceProcessor;
 import org.toasthub.core.general.model.GlobalConstant;
 import org.toasthub.core.general.model.RestRequest;
 import org.toasthub.core.general.model.RestResponse;
-import org.toasthub.core.general.service.EntityManagerMainSvc;
-import org.toasthub.core.general.service.MailSvc;
-import org.toasthub.core.general.service.UtilSvc;
 import org.toasthub.core.general.utils.TenantContext;
+import org.toasthub.core.mail.MailSvc;
 import org.toasthub.core.preference.model.AppCachePageUtil;
 import org.toasthub.core.preference.model.AppPageOptionValue;
 import org.toasthub.security.model.LoginLog;
 import org.toasthub.security.model.User;
 import org.toasthub.security.model.UserContext;
-import org.toasthub.security.repository.UserManagerDao;
 
 @Service("UserManagerSvc")
 public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {

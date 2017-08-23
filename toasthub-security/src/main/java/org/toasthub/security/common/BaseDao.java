@@ -1,4 +1,4 @@
-package org.toasthub.security.repository;
+package org.toasthub.security.common;
 
 import org.toasthub.core.general.model.RestRequest;
 import org.toasthub.core.general.model.RestResponse;

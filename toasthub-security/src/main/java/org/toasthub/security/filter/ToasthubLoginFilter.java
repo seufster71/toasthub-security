@@ -29,7 +29,7 @@ import org.toasthub.core.general.model.RestRequest;
 import org.toasthub.core.general.model.RestResponse;
 import org.toasthub.core.general.utils.TenantContext;
 import org.toasthub.security.model.User;
-import org.toasthub.security.service.UserManagerSvc;
+import org.toasthub.security.userManager.UserManagerSvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

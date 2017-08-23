@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package org.toasthub.security.service;
+package org.toasthub.security.permission;
 
 import org.toasthub.core.general.model.RestRequest;
 import org.toasthub.core.general.model.RestResponse;
+import org.toasthub.security.common.BaseDao;
 
-public interface ApplicationSvc {
+public interface PermissionDao extends BaseDao {
 
-	public void itemCount(RestRequest request, RestResponse response);
-	public void item(RestRequest request, RestResponse response);
-	public void items(RestRequest request, RestResponse response);
+	void rolePermissionIds(RestRequest request, RestResponse response);
+	
 }

@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package org.toasthub.security.service;
+package org.toasthub.security.users;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.toasthub.core.common.UtilSvc;
 import org.toasthub.core.general.handler.ServiceProcessor;
 import org.toasthub.core.general.model.GlobalConstant;
 import org.toasthub.core.general.model.RestRequest;
 import org.toasthub.core.general.model.RestResponse;
-import org.toasthub.core.general.service.UtilSvc;
 import org.toasthub.core.preference.model.AppCachePageUtil;
 import org.toasthub.security.model.User;
-import org.toasthub.security.repository.UsersDao;
 
 @Service("UserSvc")
 public class UsersSvcImpl implements ServiceProcessor, UsersSvc {

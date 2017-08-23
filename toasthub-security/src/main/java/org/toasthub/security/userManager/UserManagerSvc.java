@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.toasthub.security.service;
+package org.toasthub.security.userManager;
 
 import org.toasthub.core.general.model.RestRequest;
 import org.toasthub.core.general.model.RestResponse;

@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package org.toasthub.security.repository;
+package org.toasthub.security.userManager;
 
+import org.toasthub.security.common.BaseDao;
 import org.toasthub.security.model.LoginLog;
 import org.toasthub.security.model.User;
 

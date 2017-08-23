@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.toasthub.security.repository;
+package org.toasthub.security.application;
 
 import java.util.List;
 
@@ -23,16 +23,17 @@ import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.toasthub.core.common.EntityManagerSecuritySvc;
+import org.toasthub.core.common.UtilSvc;
 import org.toasthub.core.general.model.GlobalConstant;
 import org.toasthub.core.general.model.RestRequest;
 import org.toasthub.core.general.model.RestResponse;
-import org.toasthub.core.general.service.EntityManagerSecuritySvc;
-import org.toasthub.core.general.service.UtilSvc;
-import org.toasthub.security.model.Role;
+import org.toasthub.security.model.Application;
 
-@Repository("RoleDao")
+
+@Repository("ApplicationDao")
 @Transactional("TransactionManagerSecurity")
-public class RoleDaoImpl implements RoleDao {
+public class ApplicationDaoImpl implements ApplicationDao {
 	
 	@Autowired 
 	protected EntityManagerSecuritySvc entityManagerSecuritySvc;
@@ -42,12 +43,12 @@ public class RoleDaoImpl implements RoleDao {
 	@Override
 	public void items(RestRequest request, RestResponse response) throws Exception {
 		
-		String queryStr = "SELECT DISTINCT r FROM Role AS r JOIN FETCH r.title AS t JOIN FETCH t.langTexts as lt ";
+		String queryStr = "SELECT DISTINCT a FROM Application AS a JOIN FETCH a.title AS t JOIN FETCH t.langTexts as lt ";
 		
 		boolean and = false;
 		if (request.containsParam(GlobalConstant.ACTIVE)) {
 			if (!and) { queryStr += " WHERE "; }
-			queryStr += "r.active =:active ";
+			queryStr += "a.active =:active ";
 			and = true;
 		}
 		
@@ -72,18 +73,18 @@ public class RoleDaoImpl implements RoleDao {
 			query.setMaxResults((Integer) request.getParam(GlobalConstant.PAGELIMIT));
 		}
 		@SuppressWarnings("unchecked")
-		List<Role> roles = query.getResultList();
+		List<Application> applications = query.getResultList();
 
-		response.addParam(GlobalConstant.ITEMS, roles);
+		response.addParam(GlobalConstant.ITEMS, applications);
 	}
 
 	@Override
 	public void itemCount(RestRequest request, RestResponse response) throws Exception {
-		String queryStr = "SELECT COUNT(DISTINCT r) FROM Role as r JOIN r.title AS t JOIN t.langTexts as lt ";
+		String queryStr = "SELECT COUNT(DISTINCT a) FROM Application as a JOIN a.title AS t JOIN t.langTexts as lt ";
 		boolean and = false;
 		if (request.containsParam(GlobalConstant.ACTIVE)) {
 			if (!and) { queryStr += " WHERE "; }
-			queryStr += "r.active =:active ";
+			queryStr += "a.active =:active ";
 			and = true;
 		}
 		
@@ -115,32 +116,16 @@ public class RoleDaoImpl implements RoleDao {
 	@Override
 	public void item(RestRequest request, RestResponse response) throws Exception {
 		if (request.containsParam(GlobalConstant.ITEMID) && !"".equals(request.getParam(GlobalConstant.ITEMID))) {
-			String queryStr = "SELECT r FROM Role AS r JOIN FETCH r.title AS t JOIN FETCH t.langTexts WHERE r.id =:id";
+			String queryStr = "SELECT a FROM Application AS a JOIN FETCH a.title AS t JOIN FETCH t.langTexts WHERE a.id =:id";
 			Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
 		
-			query.setParameter("id", new Long((Integer) request.getParam(GlobalConstant.ITEMID)));
-			Role role = (Role) query.getSingleResult();
+			query.setParameter("id", new Long((String) request.getParam(GlobalConstant.ITEMID)));
+			Application application = (Application) query.getSingleResult();
 			
-			response.addParam(GlobalConstant.ITEM, role);
+			response.addParam(GlobalConstant.ITEM, application);
 		} else {
 			utilSvc.addStatus(RestResponse.ERROR, RestResponse.ACTIONFAILED, "Missing ID", response);
 		}
-	}
-
-	@Override
-	public void userRoleIds(RestRequest request, RestResponse response) {
-		if (request.containsParam("userId") && !"".equals(request.getParam("userId"))) {
-			String queryStr = "SELECT ur.role.id FROM UserRole AS ur WHERE ur.user.id =:id";
-			Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
-		
-			query.setParameter("id", new Long((Integer) request.getParam("userId")));
-			List<Long> roles = query.getResultList();
-			
-			response.addParam("roleIds", roles);
-		} else {
-			utilSvc.addStatus(RestResponse.ERROR, RestResponse.ACTIONFAILED, "Missing ID", response);
-		}
-		
 	}
 
 }
