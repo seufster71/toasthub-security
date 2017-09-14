@@ -29,5 +29,5 @@ public interface UsersDao extends BaseDao {
 	public User findUser(String username) throws Exception;
 	public User findUserByEmail(String email) throws Exception;
 	public void updateUser(RestRequest request, RestResponse response) throws Exception;
-	
+	public void getMembers(RestRequest request, RestResponse response) throws Exception; 
 }

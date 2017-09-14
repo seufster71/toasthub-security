@@ -29,6 +29,7 @@ public class UserContext implements Serializable {
    private static final long serialVersionUID = 7965455427888195913L;
    
    private User currentUser;
+   private Long userRefId;
    
    public User getCurrentUser() {
       return currentUser;
@@ -37,5 +38,13 @@ public class UserContext implements Serializable {
    public void setCurrentUser(User user){
 	   this.currentUser = user;
    }
+
+	public Long getUserRefId() {
+		return userRefId;
+	}
+	
+	public void setUserRefId(Long userRefId) {
+		this.userRefId = userRefId;
+	}
  
 }

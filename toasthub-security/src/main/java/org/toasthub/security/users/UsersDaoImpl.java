@@ -34,6 +34,7 @@ import org.toasthub.core.general.model.RestRequest;
 import org.toasthub.core.general.model.RestResponse;
 import org.toasthub.security.model.Role;
 import org.toasthub.security.model.User;
+import org.toasthub.security.model.UserContext;
 
 @Repository("UsersDao")
 @Transactional("TransactionManagerSecurity")
@@ -41,8 +42,12 @@ public class UsersDaoImpl implements UsersDao {
 	
 	@Autowired
 	protected EntityManagerSecuritySvc entityManagerSecuritySvc;
+	
 	@Autowired
 	protected UtilSvc utilSvc;
+	
+	@Autowired 
+	UserContext userContext;
 	
 	public void saveUser(RestRequest request, RestResponse response) throws Exception {
 		User user = (User) request.getParam("sysUser");
@@ -200,5 +205,25 @@ public class UsersDaoImpl implements UsersDao {
 		} else {
 			utilSvc.addStatus(RestResponse.ERROR, RestResponse.ACTIONFAILED, "Missing ID", response);
 		}
+	}
+	
+	@Override
+	public void getMembers(RestRequest request, RestResponse response) throws Exception {
+		String HQLQuery = "FROM User AS u WHERE u.active = true AND u.archive = false AND u.locked = false AND u.id != :id ";
+		if (request.getParam(GlobalConstant.SEARCHVALUE) != null && !((String)request.getParam(GlobalConstant.SEARCHVALUE)).isEmpty()){
+			HQLQuery += "AND (u.lastname like :searchValue OR u.firstname like :searchValue) ";
+		}
+		HQLQuery += "ORDER BY u.lastname ASC";
+		Query query = entityManagerSecuritySvc.getInstance().createQuery(HQLQuery);
+		if (request.getParam(GlobalConstant.SEARCHVALUE) != null && !((String)request.getParam(GlobalConstant.SEARCHVALUE)).isEmpty()){
+			query.setParameter("searchValue", ((String)request.getParam(GlobalConstant.SEARCHVALUE))+"%");
+		}
+		if ((Integer) request.getParam(GlobalConstant.PAGELIMIT) != 0){
+			query.setFirstResult((Integer) request.getParam(GlobalConstant.PAGESTART));
+			query.setMaxResults((Integer) request.getParam(GlobalConstant.PAGELIMIT));
+		}
+		List<User> members = (List<User>) query.setParameter("id",userContext.getCurrentUser().getId()).getResultList();
+		
+		response.addParam("members", members);
 	}
 }
