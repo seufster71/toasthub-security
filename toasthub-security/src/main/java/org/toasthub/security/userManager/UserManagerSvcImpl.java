@@ -265,7 +265,7 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 		    	if (request.getParam("action").equals("LOGINAUTHENTICATE")){
 		    		response.addParam("token", user.getSessionToken());
 		    	}
-				utilSvc.addStatus(RestResponse.INFO, RestResponse.SUCCESS, "TRUE", response);
+				utilSvc.addStatus(RestResponse.INFO, RestResponse.SUCCESS, "Authenticated", response);
 			} else if (!user.isEmailConfirm()){
 				LoginLog loginLog = new LoginLog(user,false);
 		    	logAccess(loginLog);
