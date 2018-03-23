@@ -102,6 +102,11 @@ public class ToasthubLoginFilter extends AbstractAuthenticationProcessingFilter 
 			if (authResult == null) {
 				// return immediately as subclass has indicated that it hasn't completed
 				// authentication
+				response.setContentType("application/json");
+				PrintWriter out = response.getWriter();
+				ObjectMapper mapperOut = new ObjectMapper();
+				out.println(mapperOut.writeValueAsString(restResponse));
+				out.close();
 				return;
 			}
 			
