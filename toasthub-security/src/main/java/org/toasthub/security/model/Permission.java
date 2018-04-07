@@ -43,7 +43,9 @@ public class Permission extends ToastEntity implements Serializable {
 	protected Boolean canWrite;
 	protected String code;
 	protected Application application;
-	
+	protected Date effStart;
+	protected Date effEnd;
+	// transient
 	protected Long applicationId;
 	
 	// constructors
@@ -104,6 +106,24 @@ public class Permission extends ToastEntity implements Serializable {
 		this.application = application;
 	}
 	
+	@JsonView({View.Member.class,View.Admin.class})
+	@Column(name = "eff_start", updatable = false)
+	public Date getEffStart() {
+		return effStart;
+	}
+	public void setEffStart(Date effStart) {
+		this.effStart = effStart;
+	}
+	
+	@JsonView({View.Member.class,View.Admin.class})
+	@Column(name = "eff_end", updatable = false)
+	public Date getEffEnd() {
+		return effEnd;
+	}
+	public void setEffEnd(Date effEnd) {
+		this.effEnd = effEnd;
+	}
+	
 	@JsonView({View.Admin.class})
 	@Transient
 	public Long getApplicationId() {
@@ -116,5 +136,6 @@ public class Permission extends ToastEntity implements Serializable {
 	public void setApplicationId(Long applicationId) {
 		this.applicationId = applicationId;
 	}
+	
 	
 }

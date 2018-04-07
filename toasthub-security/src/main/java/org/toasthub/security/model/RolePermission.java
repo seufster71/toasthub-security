@@ -16,6 +16,7 @@
 package org.toasthub.security.model;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -26,18 +27,25 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.toasthub.core.general.api.View;
+
+import com.fasterxml.jackson.annotation.JsonView;
+
 /**
  * @author Edward H. Seufert
  */
 @Entity
 @Table(name = "role_permission")
-public class RolePermission implements Serializable {
+public class RolePermission extends BaseEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
-	protected Long id;
 	protected Role role;
 	protected Permission permission;
+	protected Boolean canRead;
+	protected Boolean canWrite;
+	protected Date effStart;
+	protected Date effEnd;
 	
 	// Constructor
 	public RolePermission(){}
@@ -48,16 +56,6 @@ public class RolePermission implements Serializable {
 	}
 	
 	// Methods
-	
-	@Id	
-	@GeneratedValue(strategy=GenerationType.IDENTITY) 
-	@Column(name = "id")
-	public Long getId() {
-		return id;
-	}
-	public void setId(Long id) {
-		this.id = id;
-	}
 	
 	@ManyToOne(targetEntity = Role.class)
 	@JoinColumn(name = "role_id")
@@ -77,4 +75,39 @@ public class RolePermission implements Serializable {
 		this.permission = permission;
 	}
 	
+	@JsonView({View.Member.class,View.Admin.class})
+	@Column(name = "can_read")
+	public Boolean getCanRead() {
+		return canRead;
+	}
+	public void setCanRead(Boolean canRead) {
+		this.canRead = canRead;
+	}
+
+	@JsonView({View.Member.class,View.Admin.class})
+	@Column(name = "can_write")
+	public Boolean getCanWrite() {
+		return canWrite;
+	}
+	public void setCanWrite(Boolean canWrite) {
+		this.canWrite = canWrite;
+	}
+	
+	@JsonView({View.Member.class,View.Admin.class})
+	@Column(name = "eff_start", updatable = false)
+	public Date getEffStart() {
+		return effStart;
+	}
+	public void setEffStart(Date effStart) {
+		this.effStart = effStart;
+	}
+	
+	@JsonView({View.Member.class,View.Admin.class})
+	@Column(name = "eff_end", updatable = false)
+	public Date getEffEnd() {
+		return effEnd;
+	}
+	public void setEffEnd(Date effEnd) {
+		this.effEnd = effEnd;
+	}
 }
