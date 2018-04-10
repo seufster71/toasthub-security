@@ -17,6 +17,7 @@
 package org.toasthub.security.userManager;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
@@ -31,9 +32,11 @@ import org.toasthub.core.general.model.RestResponse;
 import org.toasthub.core.general.utils.TenantContext;
 import org.toasthub.core.system.model.AppCacheClientDomains;
 import org.toasthub.core.system.model.ClientDomain;
+import org.toasthub.security.common.SecurityUtils;
 import org.toasthub.security.model.LoginLog;
 import org.toasthub.security.model.Role;
 import org.toasthub.security.model.User;
+import org.toasthub.security.model.UserRole;
 
 @Repository("UserManagerDao")
 @Transactional("TransactionManagerSecurity")
@@ -48,11 +51,15 @@ public class UserManagerDaoImpl implements UserManagerDao {
 	public User findUser(String username) throws Exception {
 		User user = null;
 		try {
+			// user 
 		user = (User) entityManagerSecuritySvc.getInstance()
-			.createQuery("FROM User as u join fetch u.roles as roles WHERE u.username = :username AND u.archive = :archive")
+			.createQuery("FROM User as u WHERE u.username = :username AND u.archive = :archive")
 			.setParameter("username", username)
 			.setParameter("archive",false)
 			.getSingleResult();
+			// get user roles and permissions
+		List<UserRole> userRoles = entityManagerSecuritySvc.getInstance().createQuery("FROM UserRole as ur WHERE ur.user.id =:userId").setParameter("userId", user.getId()).getResultList();
+		user.setPermissions(SecurityUtils.effectivePermissions(userRoles));
 		} catch (NoResultException noresut){
 			
 		}
@@ -64,7 +71,7 @@ public class UserManagerDaoImpl implements UserManagerDao {
 		User user = null;
 		try {
 		user = (User) entityManagerSecuritySvc.getInstance()
-			.createQuery("FROM User as u join fetch u.roles as roles WHERE u.email = :email AND u.archive = :archive")
+			.createQuery("FROM User as u WHERE u.email = :email AND u.archive = :archive")
 			.setParameter("email", email)
 			.setParameter("archive",false)
 			.getSingleResult();
@@ -77,10 +84,13 @@ public class UserManagerDaoImpl implements UserManagerDao {
 	@Override
 	public void saveUser(User user) throws Exception {
 		EntityManager emain = entityManagerSecuritySvc.getInstance();
-		Set<Role> roles = new HashSet<Role>();
-		roles.add((Role) emain.createQuery("FROM Role r WHERE r.code = :code").setParameter("code","ROLE_MEMBER").getSingleResult());
-		user.setRoles(roles);
 		emain.merge(user);
+		Set<UserRole> userRoles = new HashSet<UserRole>();
+		UserRole userRole = new UserRole();
+		userRole.setUser(user);
+		userRole.setRole((Role) emain.createQuery("FROM Role r WHERE r.code = :code").setParameter("code","M").getSingleResult());
+		userRoles.add(userRole);
+		emain.merge(userRoles);
 	}
 
 	@Override

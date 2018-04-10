@@ -35,6 +35,7 @@ import org.toasthub.core.general.model.RestResponse;
 import org.toasthub.security.model.Role;
 import org.toasthub.security.model.User;
 import org.toasthub.security.model.UserContext;
+import org.toasthub.security.model.UserRole;
 
 @Repository("UsersDao")
 @Transactional("TransactionManagerSecurity")
@@ -52,10 +53,13 @@ public class UsersDaoImpl implements UsersDao {
 	public void saveUser(RestRequest request, RestResponse response) throws Exception {
 		User user = (User) request.getParam("sysUser");
 		EntityManager emain = entityManagerSecuritySvc.getInstance();
-		Set<Role> roles = new HashSet<Role>();
-		roles.add((Role) emain.createQuery("FROM Role r WHERE r.code = :code").setParameter("code","ROLE_MEMBER").getSingleResult());
-		user.setRoles(roles);
 		emain.merge(user);
+		Set<UserRole> userRoles = new HashSet<UserRole>();
+		UserRole userRole = new UserRole();
+		userRole.setUser(user);
+		userRole.setRole((Role) emain.createQuery("FROM Role r WHERE r.code = :code").setParameter("code","M").getSingleResult());
+		userRoles.add(userRole);
+		emain.merge(userRoles);
 	}
 	
 	public void resetPassword(String username, String password, String salt, String sessionToken) throws Exception {

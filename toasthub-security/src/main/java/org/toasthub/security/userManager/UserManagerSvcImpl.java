@@ -40,6 +40,7 @@ import org.toasthub.core.general.utils.TenantContext;
 import org.toasthub.core.mail.MailSvc;
 import org.toasthub.core.preference.model.AppCachePageUtil;
 import org.toasthub.core.preference.model.AppPageOptionValue;
+import org.toasthub.security.common.SecurityUtils;
 import org.toasthub.security.model.LoginLog;
 import org.toasthub.security.model.User;
 import org.toasthub.security.model.UserContext;
@@ -258,10 +259,12 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 				response.addParam("authorities", authorities);
 				response.addParam("user", user);
 				userContext.setCurrentUser(user);
+				
 				//userContext.loginWS(user);
 				//LoginLog loginLog = new LoginLog(user,true);
 		    	//logAccess(loginLog);
 		    	// return token 
+				response.addParam("user", user);
 		    	if (request.getParam("action").equals("LOGINAUTHENTICATE")){
 		    		response.addParam("token", user.getSessionToken());
 		    	}

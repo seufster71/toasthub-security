@@ -21,13 +21,12 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -46,7 +45,7 @@ public class Role extends ToastEntity implements Serializable {
 	
 	protected String code;
 	protected Application application;
-	protected Set<Permission> permissions;
+	protected Set<RolePermission> permissions;
 	protected Date effStart;
 	protected Date effEnd;
 	// transient
@@ -79,13 +78,12 @@ public class Role extends ToastEntity implements Serializable {
 		this.code = code;
 	}
 	
-	@JsonIgnore
-	@ManyToMany(targetEntity = Permission.class, fetch = FetchType.EAGER)
-	@JoinTable(name = "role_permission", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "permission_id"))
-	public Set<Permission> getPermissions() {
+	@JsonView({View.Member.class,View.Admin.class})
+	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
+	public Set<RolePermission> getPermissions() {
 		return permissions;
 	}
-	public void setPermissions(Set<Permission> permissions) {
+	public void setPermissions(Set<RolePermission> permissions) {
 		this.permissions = permissions;
 	}
 	
@@ -142,4 +140,5 @@ public class Role extends ToastEntity implements Serializable {
 	public void setPermissoinIds(Set<Long> permissionIds) {
 		this.permissionIds = permissionIds;
 	}
+
 }

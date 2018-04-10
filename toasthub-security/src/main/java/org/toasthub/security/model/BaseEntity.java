@@ -40,6 +40,7 @@ public class BaseEntity implements Serializable{
 	protected boolean archive;
 	protected boolean locked;
 	protected Long lockOwnerRefId;
+	@JsonView(View.Admin.class)
 	protected Date lockTime;
 	protected Date modified;
 	protected Date created;
@@ -160,7 +161,7 @@ public class BaseEntity implements Serializable{
 		this.archive = archive;
 	}
 	
-	@JsonView({View.Admin.class})
+	@JsonView(View.Admin.class)
 	@Column(name = "is_locked")
 	public boolean isLocked() {
 		return locked;
@@ -169,7 +170,7 @@ public class BaseEntity implements Serializable{
 		this.locked = locked;
 	}
 	
-	@JsonView({View.Admin.class})
+	@JsonView(View.Admin.class)
 	@Column(name = "lockowner_id")
 	public Long getLockOwnerRefId() {
 		return lockOwnerRefId;
@@ -178,7 +179,6 @@ public class BaseEntity implements Serializable{
 		this.lockOwnerRefId = lockOwnerRefId;
 	}
 	
-	@JsonView({View.Admin.class})
 	@Column(name = "lock_time")
 	public Date getLockTime() {
 		return lockTime;

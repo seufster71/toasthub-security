@@ -20,15 +20,15 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.toasthub.core.general.api.View;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 
 /**
@@ -46,6 +46,7 @@ public class RolePermission extends BaseEntity implements Serializable {
 	protected Boolean canWrite;
 	protected Date effStart;
 	protected Date effEnd;
+	protected String code;
 	
 	// Constructor
 	public RolePermission(){}
@@ -56,7 +57,7 @@ public class RolePermission extends BaseEntity implements Serializable {
 	}
 	
 	// Methods
-	
+	@JsonIgnore
 	@ManyToOne(targetEntity = Role.class)
 	@JoinColumn(name = "role_id")
 	public Role getRole() {
@@ -66,6 +67,7 @@ public class RolePermission extends BaseEntity implements Serializable {
 		this.role = role;
 	}
 	
+	@JsonIgnore
 	@ManyToOne(targetEntity = Permission.class)
 	@JoinColumn(name = "permission_id")
 	public Permission getPermission() {
@@ -110,4 +112,11 @@ public class RolePermission extends BaseEntity implements Serializable {
 	public void setEffEnd(Date effEnd) {
 		this.effEnd = effEnd;
 	}
+	
+	@JsonView({View.Member.class,View.Admin.class})
+	@Transient
+	public String getCode() {
+		return permission.getCode();
+	}
+	
 }

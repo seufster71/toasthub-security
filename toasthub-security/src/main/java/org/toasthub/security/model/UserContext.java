@@ -17,6 +17,8 @@
 package org.toasthub.security.model;
 
 import java.io.Serializable;
+import java.util.Map;
+
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
@@ -39,12 +41,12 @@ public class UserContext implements Serializable {
 	   this.currentUser = user;
    }
 
-	public Long getUserRefId() {
-		return userRefId;
-	}
+   public Long getUserRefId() {
+	   return userRefId;
+   }
 	
-	public void setUserRefId(Long userRefId) {
-		this.userRefId = userRefId;
-	}
- 
+   public void setUserRefId(Long userRefId) {
+	   this.userRefId = userRefId;
+   }
+	
 }

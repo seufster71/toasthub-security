@@ -18,14 +18,10 @@ package org.toasthub.security.model;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Set;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -68,7 +64,7 @@ public class User extends BaseEntity implements Serializable {
 	protected String lang;
 	protected String logLevel;
 	protected Date lastPassChange; // last password change this will be use to force password reset after x days
-	protected Set<Role> roles;
+	protected Map<String,RolePermission> permissions;
 	
 	private String chatStatus;
 	private boolean connected;
@@ -128,6 +124,7 @@ public class User extends BaseEntity implements Serializable {
 		this.password = password;
 	}
 
+	@JsonIgnore
 	@Transient
 	public String getVerifyPassword() {
 		return verifyPassword;
@@ -325,14 +322,23 @@ public class User extends BaseEntity implements Serializable {
 		this.lastPassChange = lastPassChange;
 	}
 	
-	@JsonIgnore
-	@ManyToMany(targetEntity = Role.class, fetch = FetchType.EAGER)
-	@JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
-	public Set<Role> getRoles() {
-		return roles;
+	//@JsonIgnore
+	//@ManyToMany(targetEntity = Role.class, fetch = FetchType.EAGER)
+	//@JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+	//public Set<Role> getRoles() {
+	//	return roles;
+	//}
+	//public void setRoles(Set<Role> roles) {
+	//	this.roles = roles;
+	//}
+	
+	@JsonView({View.Admin.class,View.Member.class})
+	@Transient
+	public Map<String,RolePermission> getPermissions() {
+		return permissions;
 	}
-	public void setRoles(Set<Role> roles) {
-		this.roles = roles;
+	public void setPermissions(Map<String,RolePermission> permissions) {
+		this.permissions = permissions;
 	}
 	
 	@JsonView({View.Admin.class,View.Member.class})

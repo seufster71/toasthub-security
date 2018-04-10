@@ -17,15 +17,25 @@
 package org.toasthub.security.model;
 
 import java.io.Serializable;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
+
+import org.toasthub.core.general.api.View;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 
 @Entity
 @Table(name = "user_role")
@@ -36,6 +46,8 @@ public class UserRole implements Serializable {
 	protected Long id;
 	protected Role role;
 	protected User user;
+	protected Integer order;
+	protected Long version;
 	
 	// Constructor
 	public UserRole(){}
@@ -75,4 +87,22 @@ public class UserRole implements Serializable {
 		this.user = user;
 	}
 	
+	@JsonView({View.Admin.class})
+	@Column(name = "sort_order")
+	public Integer getOrder() {
+		return order;
+	}
+	public void setOrder(Integer order) {
+		this.order = order;
+	}
+	
+	@JsonIgnore
+	@Version 
+	@Column(name = "version")
+	public Long getVersion() {
+		return version;
+	}
+	public void setVersion(Long version) {
+		this.version = version;
+	}
 }
