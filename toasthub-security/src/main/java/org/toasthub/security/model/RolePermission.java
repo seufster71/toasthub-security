@@ -42,11 +42,10 @@ public class RolePermission extends BaseEntity implements Serializable {
 	
 	protected Role role;
 	protected Permission permission;
-	protected Boolean canRead;
-	protected Boolean canWrite;
-	protected Date effStart;
-	protected Date effEnd;
-	protected String code;
+	protected String r;
+	protected Date s;
+	protected Date e;
+	protected String c;
 	
 	// Constructor
 	public RolePermission(){}
@@ -78,44 +77,35 @@ public class RolePermission extends BaseEntity implements Serializable {
 	}
 	
 	@JsonView({View.Member.class,View.Admin.class})
-	@Column(name = "can_read")
-	public Boolean getCanRead() {
-		return canRead;
+	@Column(name = "rights")
+	public String getR() {
+		return r;
 	}
-	public void setCanRead(Boolean canRead) {
-		this.canRead = canRead;
-	}
-
-	@JsonView({View.Member.class,View.Admin.class})
-	@Column(name = "can_write")
-	public Boolean getCanWrite() {
-		return canWrite;
-	}
-	public void setCanWrite(Boolean canWrite) {
-		this.canWrite = canWrite;
+	public void setR(String rights) {
+		this.r = rights;
 	}
 	
 	@JsonView({View.Member.class,View.Admin.class})
 	@Column(name = "eff_start", updatable = false)
-	public Date getEffStart() {
-		return effStart;
+	public Date getS() {
+		return s;
 	}
-	public void setEffStart(Date effStart) {
-		this.effStart = effStart;
+	public void setS(Date effStart) {
+		this.s = effStart;
 	}
 	
 	@JsonView({View.Member.class,View.Admin.class})
 	@Column(name = "eff_end", updatable = false)
-	public Date getEffEnd() {
-		return effEnd;
+	public Date getE() {
+		return e;
 	}
-	public void setEffEnd(Date effEnd) {
-		this.effEnd = effEnd;
+	public void setE(Date effEnd) {
+		this.e = effEnd;
 	}
 	
-	@JsonView({View.Member.class,View.Admin.class})
+	@JsonView({View.Admin.class})
 	@Transient
-	public String getCode() {
+	public String getC() {
 		return permission.getCode();
 	}
 	

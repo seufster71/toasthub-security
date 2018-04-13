@@ -39,8 +39,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 public class Permission extends ToastEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
-	protected Boolean canRead;
-	protected Boolean canWrite;
+	protected String rights;
 	protected String code;
 	protected Application application;
 	protected Date effStart;
@@ -56,35 +55,25 @@ public class Permission extends ToastEntity implements Serializable {
 		this.setCreated(new Date());
 	}
 	
-	public Permission(String code, Text title, Boolean canRead, Boolean canWrite) {
+	public Permission(String code, Text title, String rights) {
 		this.setActive(true);
 		this.setArchive(false);
 		this.setLocked(false);
 		this.setCreated(new Date());
 		this.setCode(code);
 		this.setTitle(title);
-		this.setCanRead(canRead);
-		this.setCanWrite(canWrite);
+		this.setRights(rights);
 	}
 	
 
 	// Setters and getters
 	@JsonView({View.Admin.class})
-	@Column(name = "can_read")
-	public Boolean getCanRead() {
-		return canRead;
+	@Column(name = "rights")
+	public String getRights() {
+		return rights;
 	}
-	public void setCanRead(Boolean canRead) {
-		this.canRead = canRead;
-	}
-
-	@JsonView({View.Admin.class})
-	@Column(name = "can_write")
-	public Boolean getCanWrite() {
-		return canWrite;
-	}
-	public void setCanWrite(Boolean canWrite) {
-		this.canWrite = canWrite;
+	public void setRights(String rights) {
+		this.rights = rights;
 	}
 
 	@JsonView({View.Admin.class})
@@ -130,7 +119,7 @@ public class Permission extends ToastEntity implements Serializable {
 		if (this.application == null){
 			return this.applicationId;
 		} else {
-			return this.application.id;
+			return this.application.getId();
 		}
 	}
 	public void setApplicationId(Long applicationId) {

@@ -25,11 +25,13 @@ import org.springframework.security.web.authentication.NullRememberMeServices;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
+import org.toasthub.core.general.api.View;
 import org.toasthub.core.general.model.RestRequest;
 import org.toasthub.core.general.model.RestResponse;
 import org.toasthub.security.model.User;
 import org.toasthub.security.userManager.UserManagerSvc;
 
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ToasthubLoginFilter extends AbstractAuthenticationProcessingFilter {
@@ -90,6 +92,8 @@ public class ToasthubLoginFilter extends AbstractAuthenticationProcessingFilter 
 					User user = (User) restResponse.getParam("user");
 					if (user != null) {
 						authResult = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(), (List<GrantedAuthority>) restResponse.getParam("authorities"));
+						restResponse.getParams().remove("user");
+						restResponse.getParams().remove("authorities");
 					}
 				} else {
 					authResult = new UsernamePasswordAuthenticationToken("", "", new ArrayList<>());
@@ -105,6 +109,9 @@ public class ToasthubLoginFilter extends AbstractAuthenticationProcessingFilter 
 				response.setContentType("application/json");
 				PrintWriter out = response.getWriter();
 				ObjectMapper mapperOut = new ObjectMapper();
+				mapperOut.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
+				mapperOut.writerWithView(View.Member.class);
+				mapperOut.writerWithView(View.Admin.class);
 				out.println(mapperOut.writeValueAsString(restResponse));
 				out.close();
 				return;
@@ -139,6 +146,9 @@ public class ToasthubLoginFilter extends AbstractAuthenticationProcessingFilter 
 		response.setContentType("application/json");
 		PrintWriter out = response.getWriter();
 		ObjectMapper mapperOut = new ObjectMapper();
+		mapperOut.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
+		mapperOut.writerWithView(View.Member.class);
+		mapperOut.writerWithView(View.Admin.class);
 		out.println(mapperOut.writeValueAsString(restResponse));
 		out.close();
 		

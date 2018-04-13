@@ -17,8 +17,6 @@
 package org.toasthub.security.model;
 
 import java.io.Serializable;
-import java.util.Map;
-
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;

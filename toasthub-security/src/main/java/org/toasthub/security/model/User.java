@@ -29,7 +29,6 @@ import org.toasthub.core.general.api.View;
 import org.toasthub.core.general.model.RestRequest;
 import org.toasthub.core.general.model.RestResponse;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 
 @Entity
@@ -40,31 +39,31 @@ public class User extends BaseEntity implements Serializable {
 	public static String[] columns = {"firstname","middlename","lastname","active","username","created"};
 	public static String[] dataTypes = {"string","string","string","boolean","string","date"};
 	
-	protected String username;
-	protected String password;
-	protected String verifyPassword;
-	protected String salt;
-	protected String firstname;
-	protected String middlename;
-	protected String lastname;
-	protected String email;
-	protected String zipcode;
-	protected String challengePhase1;
-	protected String challengePhaseAnswer1;
-	protected String challengePhase2;
-	protected String challengePhaseAnswer2;
-	protected String challengePhase3;
-	protected String challengePhaseAnswer3;
-	protected String alternateEmail;
-	protected String sessionToken;
-	protected String emailToken;
-	protected boolean useToken;
-	protected boolean emailConfirm;
-	protected boolean forceReset;
-	protected String lang;
-	protected String logLevel;
-	protected Date lastPassChange; // last password change this will be use to force password reset after x days
-	protected Map<String,RolePermission> permissions;
+	private String username;
+	private String password;
+	private String verifyPassword;
+	private String salt;
+	private String firstname;
+	private String middlename;
+	private String lastname;
+	private String email;
+	private String zipcode;
+	private String challengePhase1;
+	private String challengePhaseAnswer1;
+	private String challengePhase2;
+	private String challengePhaseAnswer2;
+	private String challengePhase3;
+	private String challengePhaseAnswer3;
+	private String alternateEmail;
+	private String sessionToken;
+	private String emailToken;
+	private boolean useToken;
+	private boolean emailConfirm;
+	private boolean forceReset;
+	private String lang;
+	private String logLevel;
+	private Date lastPassChange; // last password change this will be use to force password reset after x days
+	private Map<String,RolePermission> permissions;
 	
 	private String chatStatus;
 	private boolean connected;
@@ -115,7 +114,7 @@ public class User extends BaseEntity implements Serializable {
 		this.username = username;
 	}
 	
-	@JsonIgnore
+	@JsonView({View.Admin.class})
 	@Column(name = "password")
 	public String getPassword() {
 		return password;
@@ -124,7 +123,7 @@ public class User extends BaseEntity implements Serializable {
 		this.password = password;
 	}
 
-	@JsonIgnore
+	@JsonView({View.Admin.class})
 	@Transient
 	public String getVerifyPassword() {
 		return verifyPassword;
@@ -178,7 +177,7 @@ public class User extends BaseEntity implements Serializable {
 		this.email = email;
 	}
 	
-	@JsonView({View.Admin.class,View.Member.class})
+	@JsonView({View.Admin.class})
 	@Column(name = "challengephase1")
 	public String getChallengePhase1() {
 		return challengePhase1;
@@ -187,7 +186,7 @@ public class User extends BaseEntity implements Serializable {
 		this.challengePhase1 = challengePhase1;
 	}
 	
-	@JsonView({View.Admin.class,View.Member.class})
+	@JsonView({View.Admin.class})
 	@Column(name = "challengephaseanswer1")
 	public String getChallengePhaseAnswer1() {
 		return challengePhaseAnswer1;
@@ -196,7 +195,7 @@ public class User extends BaseEntity implements Serializable {
 		this.challengePhaseAnswer1 = challengePhaseAnswer1;
 	}
 	
-	@JsonView({View.Admin.class,View.Member.class})
+	@JsonView({View.Admin.class})
 	@Column(name = "challengephase2")
 	public String getChallengePhase2() {
 		return challengePhase2;
@@ -205,7 +204,7 @@ public class User extends BaseEntity implements Serializable {
 		this.challengePhase2 = challengePhase2;
 	}
 	
-	@JsonView({View.Admin.class,View.Member.class})
+	@JsonView({View.Admin.class})
 	@Column(name = "challengephaseanswer2")
 	public String getChallengePhaseAnswer2() {
 		return challengePhaseAnswer2;
@@ -214,7 +213,7 @@ public class User extends BaseEntity implements Serializable {
 		this.challengePhaseAnswer2 = challengePhaseAnswer2;
 	}
 	
-	@JsonView({View.Admin.class,View.Member.class})
+	@JsonView({View.Admin.class})
 	@Column(name = "challengephase3")
 	public String getChallengePhase3() {
 		return challengePhase3;
@@ -223,7 +222,7 @@ public class User extends BaseEntity implements Serializable {
 		this.challengePhase3 = challengePhase3;
 	}
 	
-	@JsonView({View.Admin.class,View.Member.class})
+	@JsonView({View.Admin.class})
 	@Column(name = "challengephaseanswer3")
 	public String getChallengePhaseAnswer3() {
 		return challengePhaseAnswer3;

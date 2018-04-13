@@ -28,7 +28,6 @@ import javax.persistence.Version;
 
 import org.toasthub.core.general.api.View;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 
 @MappedSuperclass()
@@ -40,7 +39,6 @@ public class BaseEntity implements Serializable{
 	protected boolean archive;
 	protected boolean locked;
 	protected Long lockOwnerRefId;
-	@JsonView(View.Admin.class)
 	protected Date lockTime;
 	protected Date modified;
 	protected Date created;
@@ -103,7 +101,7 @@ public class BaseEntity implements Serializable{
 	}
 	*/
 	// Setter/Getter
-	@JsonView({View.Admin.class,View.Member.class})
+	@JsonView({View.Admin.class})
 	@Id	
 	@GeneratedValue(strategy=GenerationType.IDENTITY) 
 	@Column(name = "id")
@@ -124,7 +122,7 @@ public class BaseEntity implements Serializable{
 		this.modified = modified;
 	}
 	
-	@JsonView({View.Member.class,View.Admin.class})
+	@JsonView({View.Admin.class})
 	@Column(name = "created", updatable = false)
 	public Date getCreated() {
 		return created;
@@ -133,7 +131,7 @@ public class BaseEntity implements Serializable{
 		this.created = created;
 	}
 	
-	@JsonIgnore
+	@JsonView(View.Admin.class)
 	@Version 
 	@Column(name = "version")
 	public Long getVersion() {
@@ -143,7 +141,7 @@ public class BaseEntity implements Serializable{
 		this.version = version;
 	}
 
-	@JsonView({View.Member.class,View.Admin.class})
+	@JsonView({View.Admin.class})
 	@Column(name = "is_active")
 	public boolean isActive() {
 		return active;
@@ -152,7 +150,7 @@ public class BaseEntity implements Serializable{
 		this.active = active;
 	}
 	
-	@JsonView({View.Member.class,View.Admin.class})
+	@JsonView({View.Admin.class})
 	@Column(name = "is_archive")
 	public boolean isArchive() {
 		return archive;
@@ -179,6 +177,7 @@ public class BaseEntity implements Serializable{
 		this.lockOwnerRefId = lockOwnerRefId;
 	}
 	
+	@JsonView(View.Admin.class)
 	@Column(name = "lock_time")
 	public Date getLockTime() {
 		return lockTime;

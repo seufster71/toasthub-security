@@ -121,7 +121,7 @@ public class Role extends ToastEntity implements Serializable {
 		if (this.application == null){
 			return this.applicationId;
 		} else {
-			return this.application.id;
+			return this.application.getId();
 		}
 	}
 	public void setApplicationId(Long applicationId) {

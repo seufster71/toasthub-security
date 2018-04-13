@@ -67,7 +67,7 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 
 	@Autowired 
 	UserContext userContext;
-
+	
 	// Constructor
 	public UserManagerSvcImpl() {}
 	
@@ -111,9 +111,6 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 			break;
 		case "CONFIRMEMAIL":
 			this.confirmEmail(request, response);
-			break;
-		case "LOGOUT":
-			logout(request, response);
 			break;
 		default:
 			break;
@@ -251,11 +248,12 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 			boolean authenticated = authenticate(user, request);
 			if (authenticated ){
 				List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-				 if ( "admin".equals(request.getParams().get("username")) ) {
-					 authorities.add(new SimpleGrantedAuthority("ADMIN"));
-				 } else {
-					 authorities.add(new SimpleGrantedAuthority("PRIVATE"));
-				 }
+				if (SecurityUtils.containsPermission(user, "ADMAREA", "R") ) {
+					authorities.add(new SimpleGrantedAuthority("ADMIN"));
+				}
+				if (SecurityUtils.containsPermission(user, "MEMAREA", "R")) {
+					authorities.add(new SimpleGrantedAuthority("MEMBER"));
+				}
 				response.addParam("authorities", authorities);
 				response.addParam("user", user);
 				userContext.setCurrentUser(user);
@@ -264,7 +262,6 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 				//LoginLog loginLog = new LoginLog(user,true);
 		    	//logAccess(loginLog);
 		    	// return token 
-				response.addParam("user", user);
 		    	if (request.getParam("action").equals("LOGINAUTHENTICATE")){
 		    		response.addParam("token", user.getSessionToken());
 		    	}
@@ -553,11 +550,6 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 		
 	}
 	
-	public void logout(RestRequest request, RestResponse response) {
-		// invalidate user context and terminate session
-		//utilSvc.addStatus(RestResponse.INFO, RestResponse.SUCCESS, userContext.getLogout(), response);
-		// log user activity
-		
-	}
+	
 }
 
