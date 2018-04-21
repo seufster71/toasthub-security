@@ -29,6 +29,7 @@ import org.toasthub.core.general.api.View;
 import org.toasthub.core.general.model.RestRequest;
 import org.toasthub.core.general.model.RestResponse;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 
 @Entity
@@ -114,7 +115,7 @@ public class User extends BaseEntity implements Serializable {
 		this.username = username;
 	}
 	
-	@JsonView({View.Admin.class})
+	@JsonIgnore
 	@Column(name = "password")
 	public String getPassword() {
 		return password;
@@ -123,7 +124,7 @@ public class User extends BaseEntity implements Serializable {
 		this.password = password;
 	}
 
-	@JsonView({View.Admin.class})
+	@JsonIgnore
 	@Transient
 	public String getVerifyPassword() {
 		return verifyPassword;
@@ -267,7 +268,7 @@ public class User extends BaseEntity implements Serializable {
 		this.useToken = useToken;
 	}
 	
-	@JsonView({View.Admin.class})
+	@JsonIgnore
 	@Column(name = "salt")
 	public String getSalt() {
 		return salt;

@@ -78,7 +78,7 @@ public class Role extends ToastEntity implements Serializable {
 		this.code = code;
 	}
 	
-	@JsonView({View.Member.class,View.Admin.class})
+	@JsonIgnore
 	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
 	public Set<RolePermission> getPermissions() {
 		return permissions;
