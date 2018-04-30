@@ -76,7 +76,7 @@ public class RolePermission extends BaseEntity implements Serializable {
 		this.permission = permission;
 	}
 	
-	@JsonView({View.Member.class,View.Admin.class})
+	@JsonView({View.Member.class,View.Admin.class,View.System.class})
 	@Column(name = "rights")
 	public String getR() {
 		return r;
@@ -85,7 +85,7 @@ public class RolePermission extends BaseEntity implements Serializable {
 		this.r = rights;
 	}
 	
-	@JsonView({View.Member.class,View.Admin.class})
+	@JsonView({View.Member.class,View.Admin.class,View.System.class})
 	@Column(name = "eff_start", updatable = false)
 	public Date getS() {
 		return s;
@@ -94,7 +94,7 @@ public class RolePermission extends BaseEntity implements Serializable {
 		this.s = effStart;
 	}
 	
-	@JsonView({View.Member.class,View.Admin.class})
+	@JsonView({View.Member.class,View.Admin.class,View.System.class})
 	@Column(name = "eff_end", updatable = false)
 	public Date getE() {
 		return e;

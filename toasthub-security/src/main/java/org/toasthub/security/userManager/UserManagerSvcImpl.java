@@ -254,6 +254,9 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 				if (SecurityUtils.containsPermission(user, "MEMAREA", "R")) {
 					authorities.add(new SimpleGrantedAuthority("MEMBER"));
 				}
+				if (SecurityUtils.containsPermission(user, "SYSAREA", "R")) {
+					authorities.add(new SimpleGrantedAuthority("SYSTEM"));
+				}
 				response.addParam("authorities", authorities);
 				response.addParam("user", user);
 				userContext.setCurrentUser(user);

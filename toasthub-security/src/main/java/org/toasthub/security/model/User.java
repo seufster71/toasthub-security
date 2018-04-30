@@ -106,7 +106,7 @@ public class User extends BaseEntity implements Serializable {
 		//userInputHelper(request, response, formName);
 	}
 	// Setters/Getters
-	@JsonView({View.Admin.class,View.Member.class})
+	@JsonView({View.Admin.class,View.Member.class,View.System.class})
 	@Column(name = "username")	
 	public String getUsername() {
 		return username;
@@ -133,7 +133,7 @@ public class User extends BaseEntity implements Serializable {
 		this.verifyPassword = verifyPassword;
 	}
 	
-	@JsonView({View.Admin.class,View.Member.class})
+	@JsonView({View.Admin.class,View.Member.class,View.System.class})
 	@Column(name = "firstname")
 	public String getFirstname() {
 		return firstname;
@@ -142,7 +142,7 @@ public class User extends BaseEntity implements Serializable {
 		this.firstname = firstname;
 	}
 
-	@JsonView({View.Admin.class,View.Member.class})
+	@JsonView({View.Admin.class,View.System.class})
 	@Column(name = "middlename")
 	public String getMiddlename() {
 		return middlename;
@@ -295,7 +295,7 @@ public class User extends BaseEntity implements Serializable {
 		this.forceReset = forceReset;
 	}
 	
-	@JsonView({View.Admin.class})
+	@JsonView({View.Admin.class,View.Member.class,View.System.class})
 	@Column(name = "lang")
 	public String getLang() {
 		return lang;
@@ -304,7 +304,7 @@ public class User extends BaseEntity implements Serializable {
 		this.lang = lang;
 	}
 	
-	@JsonView({View.Admin.class})
+	@JsonView({View.Admin.class,View.Member.class,View.System.class})
 	@Column(name = "log_level")
 	public String getLogLevel() {
 		return logLevel;
@@ -332,7 +332,7 @@ public class User extends BaseEntity implements Serializable {
 	//	this.roles = roles;
 	//}
 	
-	@JsonView({View.Admin.class,View.Member.class})
+	@JsonView({View.Admin.class,View.Member.class,View.System.class})
 	@Transient
 	public Map<String,RolePermission> getPermissions() {
 		return permissions;
