@@ -54,7 +54,7 @@ public class Application extends ToastEntity implements Serializable {
 	}
 	
 	// Methods
-	@JsonView({View.Admin.class})
+	@JsonView({View.System.class})
 	@Column(name = "code")
 	public String getCode() {
 		return code;

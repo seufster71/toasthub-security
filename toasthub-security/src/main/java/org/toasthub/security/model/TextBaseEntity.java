@@ -47,7 +47,7 @@ public class TextBaseEntity implements Serializable{
 	}
 	// Setter/Getter
 	@Id	
-	@JsonView({View.Admin.class})
+	@JsonView({View.Admin.class,View.System.class})
 	@GeneratedValue(strategy=GenerationType.IDENTITY) 
 	@Column(name = "id")
 	public Long getId() {
@@ -57,7 +57,7 @@ public class TextBaseEntity implements Serializable{
 		this.id = id;
 	}
 	
-	@JsonView({View.Admin.class})
+	@JsonView({View.Admin.class,View.System.class})
 	@Column(name = "modified",updatable = false, insertable = false)
 	//@org.hibernate.annotations.Generated(org.hibernate.annotations.GenerationTime.ALWAYS)
 	public Date getModified() {
@@ -67,7 +67,7 @@ public class TextBaseEntity implements Serializable{
 		this.modified = modified;
 	}
 	
-	@JsonView({View.Admin.class})
+	@JsonView({View.Admin.class,View.System.class})
 	@Column(name = "created", updatable = false)
 	public Date getCreated() {
 		return created;

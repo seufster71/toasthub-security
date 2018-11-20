@@ -26,7 +26,7 @@ public class ToastEntity extends BaseEntity implements Serializable {
 	}
 	
 	// Getters/Setters
-	@JsonView({View.Admin.class})
+	@JsonView({View.Admin.class,View.System.class})
 	@ManyToOne(targetEntity = Text.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinColumn(name = "title_id")
 	public Text getTitle() {

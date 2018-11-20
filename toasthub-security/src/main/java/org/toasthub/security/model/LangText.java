@@ -55,7 +55,7 @@ public class LangText extends TextBaseEntity implements Serializable {
 		this.textMeta = textMeta;
 	}
 	
-	@JsonView({View.Public.class,View.Member.class,View.Admin.class})
+	@JsonView({View.Public.class,View.Member.class,View.Admin.class,View.System.class})
 	@Column(name = "lang", nullable = false)
 	public String getLang() {
 		return lang;
@@ -64,7 +64,7 @@ public class LangText extends TextBaseEntity implements Serializable {
 		this.lang = lang;
 	}
 	
-	@JsonView({View.Public.class,View.Member.class,View.Admin.class})
+	@JsonView({View.Public.class,View.Member.class,View.Admin.class,View.System.class})
 	@Column(name = "text")
 	public String getText() {
 		return text;
