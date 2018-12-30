@@ -18,6 +18,7 @@ package org.toasthub.security.users;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
@@ -137,11 +138,34 @@ public class UsersDaoImpl implements UsersDao {
 			and = true;
 		}
 		
-		if (request.containsParam(GlobalConstant.SEARCHVALUE) && !request.getParam(GlobalConstant.SEARCHVALUE).equals("")){
-			if (!and) { queryStr += " WHERE "; } else { queryStr += " AND "; }
-			queryStr += " u.firstname LIKE :searchValue OR u.lastname LIKE :searchValue "; 
-			and = true;
+		if (request.containsParam(GlobalConstant.SEARCHCRITERIA)) {
+			Map<String,Object> searchCriteria = (Map<String, Object>) request.getParam(GlobalConstant.SEARCHCRITERIA);
+			if (searchCriteria.containsKey(GlobalConstant.SEARCHVALUE) && !"".equals(searchCriteria.get(GlobalConstant.SEARCHVALUE))
+				&& searchCriteria.containsKey(GlobalConstant.SEARCHCOLUMN) && !"".equals(searchCriteria.get(GlobalConstant.SEARCHCOLUMN))){
+				if (!and) { queryStr += " WHERE "; } else { queryStr += " AND "; }
+				String key = (String) searchCriteria.get(GlobalConstant.SEARCHCOLUMN);
+				switch (key) {
+				case "ADMIN_USER_TABLE_USERNAME":
+					queryStr += " u.username LIKE :searchValue "; 
+					break;
+				case "ADMIN_USER_TABLE_FIRSTNAME":
+					queryStr += " u.firstname LIKE :searchValue";
+					break;
+				case "ADMIN_USER_TABLE_LASTNAME":
+					queryStr += " u.lastname LIKE :searchValue ";
+					break;
+				case "ADMIN_USER_TABLE_BOTH":
+					queryStr += " u.firstname LIKE :searchValue OR u.lastname LIKE :searchValue OR u.username LIKE :searchValue";
+					break;
+				default:
+					break;
+				}
+				 
+				
+				and = true;
+			}
 		}
+
 		
 		Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
 		
@@ -149,8 +173,11 @@ public class UsersDaoImpl implements UsersDao {
 			query.setParameter("active", (Boolean) request.getParam(GlobalConstant.ACTIVE));
 		} 
 		
-		if (request.containsParam(GlobalConstant.SEARCHVALUE) && !request.getParam(GlobalConstant.SEARCHVALUE).equals("")){
-			query.setParameter("searchValue", "%"+((String)request.getParam(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+		if (request.containsParam(GlobalConstant.SEARCHCRITERIA)) {
+			Map<String,Object> searchCriteria = (Map<String, Object>) request.getParam(GlobalConstant.SEARCHCRITERIA);
+			if (searchCriteria.containsKey(GlobalConstant.SEARCHVALUE) && !"".equals(searchCriteria.get(GlobalConstant.SEARCHVALUE))){
+				query.setParameter("searchValue", "%"+((String)searchCriteria.get(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+			}
 		}
 		if (request.containsParam(GlobalConstant.PAGELIMIT) && (Integer) request.getParam(GlobalConstant.PAGELIMIT) != 0){
 			query.setFirstResult((Integer) request.getParam(GlobalConstant.PAGESTART));
@@ -171,11 +198,32 @@ public class UsersDaoImpl implements UsersDao {
 			queryStr += "u.active =:active ";
 			and = true;
 		}
-		
-		if (request.containsParam(GlobalConstant.SEARCHVALUE) && !request.getParam(GlobalConstant.SEARCHVALUE).equals("")){
-			if (!and) { queryStr += " WHERE "; } else { queryStr += " AND "; }
-			queryStr += " u.firstname LIKE :searchValue OR u.lastname LIKE :searchValue "; 
-			and = true;
+		if (request.containsParam(GlobalConstant.SEARCHCRITERIA)) {
+			Map<String,Object> searchCriteria = (Map<String, Object>) request.getParam(GlobalConstant.SEARCHCRITERIA);
+			if (searchCriteria.containsKey(GlobalConstant.SEARCHVALUE) && !"".equals(searchCriteria.get(GlobalConstant.SEARCHVALUE))
+				&& searchCriteria.containsKey(GlobalConstant.SEARCHCOLUMN) && !"".equals(searchCriteria.get(GlobalConstant.SEARCHCOLUMN))){
+				if (!and) { queryStr += " WHERE "; } else { queryStr += " AND "; }
+				String key = (String) searchCriteria.get(GlobalConstant.SEARCHCOLUMN);
+				switch (key) {
+				case "ADMIN_USER_TABLE_USERNAME":
+					queryStr += " u.username LIKE :searchValue "; 
+					break;
+				case "ADMIN_USER_TABLE_FIRSTNAME":
+					queryStr += " u.firstname LIKE :searchValue";
+					break;
+				case "ADMIN_USER_TABLE_LASTNAME":
+					queryStr += " u.lastname LIKE :searchValue ";
+					break;
+				case "ADMIN_USER_TABLE_BOTH":
+					queryStr += " u.firstname LIKE :searchValue OR u.lastname LIKE :searchValue OR u.username LIKE :searchValue";
+					break;
+				default:
+					break;
+				}
+				 
+				
+				and = true;
+			}
 		}
 
 		Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
@@ -184,10 +232,12 @@ public class UsersDaoImpl implements UsersDao {
 			query.setParameter("active", (Boolean) request.getParam(GlobalConstant.ACTIVE));
 		} 
 		
-		if (request.containsParam(GlobalConstant.SEARCHVALUE) && !request.getParam(GlobalConstant.SEARCHVALUE).equals("")){
-			query.setParameter("searchValue", "%"+((String)request.getParam(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+		if (request.containsParam(GlobalConstant.SEARCHCRITERIA)) {
+			Map<String,Object> searchCriteria = (Map<String, Object>) request.getParam(GlobalConstant.SEARCHCRITERIA);
+			if (searchCriteria.containsKey(GlobalConstant.SEARCHVALUE) && !"".equals(searchCriteria.get(GlobalConstant.SEARCHVALUE))){
+				query.setParameter("searchValue", "%"+((String)searchCriteria.get(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+			}
 		}
-		
 		Long count = (Long) query.getSingleResult();
 		if (count == null){
 			count = 0l;
