@@ -18,6 +18,7 @@ package org.toasthub.security.userManager;
 
 import org.toasthub.core.general.model.RestRequest;
 import org.toasthub.core.general.model.RestResponse;
+import org.toasthub.security.model.LoginLog;
 import org.toasthub.security.model.User;
 
 public interface UserManagerSvc {
@@ -25,4 +26,5 @@ public interface UserManagerSvc {
 	public User findUser(String username);
 	public User findUserByEmail(String email);
 	public void authenticate(RestRequest request, RestResponse response);
+	public void logAccess(LoginLog loginLog);
 }

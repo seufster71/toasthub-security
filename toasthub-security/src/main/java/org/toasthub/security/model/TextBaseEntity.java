@@ -68,7 +68,7 @@ public class TextBaseEntity implements Serializable{
 	}
 	
 	@JsonView({View.Admin.class,View.System.class})
-	@Column(name = "created", updatable = false)
+	@Column(name = "created", updatable = false, insertable = false)
 	public Date getCreated() {
 		return created;
 	}

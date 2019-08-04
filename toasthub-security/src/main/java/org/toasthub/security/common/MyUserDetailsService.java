@@ -5,6 +5,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.toasthub.core.general.utils.TenantContext;
+import org.toasthub.security.model.LoginLog;
 import org.toasthub.security.model.MyUserPrincipal;
 import org.toasthub.security.model.User;
 import org.toasthub.security.userManager.UserManagerSvc;
@@ -22,6 +24,7 @@ public class MyUserDetailsService implements UserDetailsService {
 			user = userManagerSvc.findUserByEmail(username);
 		}
 		if (user == null){
+			userManagerSvc.logAccess(new LoginLog(username,(String) TenantContext.getURLDomain(),LoginLog.FAIL_BAD_USER));
 			throw new UsernameNotFoundException(username);
 		}
 		return new MyUserPrincipal(user);

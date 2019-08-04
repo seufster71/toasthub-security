@@ -12,6 +12,7 @@ import org.toasthub.core.general.api.View;
 import org.toasthub.core.general.model.RestRequest;
 import org.toasthub.core.general.model.RestResponse;
 import org.toasthub.core.general.model.ServiceClass;
+import org.toasthub.core.general.utils.TenantContext;
 import org.toasthub.core.serviceCrawler.MicroServiceClient;
 import org.toasthub.core.general.model.AppCacheServiceCrawler;
 import org.toasthub.core.general.model.GlobalConstant;
@@ -19,8 +20,8 @@ import org.toasthub.core.general.model.GlobalConstant;
 import com.fasterxml.jackson.annotation.JsonView;
 
 @RestController()
-@RequestMapping("/api/login")
-public class LoginWS {
+@RequestMapping("/api/usermgmt")
+public class UserMgmtWS {
 	
 	@Autowired 
 	UtilSvc utilSvc;
@@ -31,10 +32,11 @@ public class LoginWS {
 	@Autowired
 	MicroServiceClient microServiceClient;
 	
-	@JsonView(View.Public.class)
+	@JsonView(View.PublicMember.class)
 	@RequestMapping(value = "callService", method = RequestMethod.POST)
 	public RestResponse callService(@RequestBody RestRequest request) {
-		
+		request.addParam("TENANT_URLDOMAIN", TenantContext.getURLDomain());
+		request.addParam("TENANT_ID", TenantContext.getTenantId());
 		RestResponse response = new RestResponse();
 		// set defaults
 		utilSvc.setupDefaults(request);

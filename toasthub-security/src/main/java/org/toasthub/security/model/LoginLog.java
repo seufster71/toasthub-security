@@ -23,8 +23,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
@@ -33,19 +31,26 @@ import javax.persistence.Version;
 public class LoginLog {
 
 	private Long id;
-	private User user;
+	private String username;
+	private String ipaddress;
 	private String appname;
-	private Boolean success;
+	private String status;
 	private Date modified;
 	private Date created;
 	private Long version;
 	
+	public final static String SUCCESS = "SUCCESS";
+	public final static String FAIL_BAD_USER = "FAIL_BAD_USER";
+	public final static String FAIL_BAD_PASS = "FAIL_BAD_PASS";
+	public final static String FAIL_BAD_EMAIL_CONFIRM = "FAIL_BAD_EMAIL_CONFIRM";
+	
 	// Constructors
 	public LoginLog(){}
 	
-	public LoginLog(User user, Boolean success){
-		this.setUser(user);
-		this.setSuccess(success);
+	public LoginLog(String username, String ipaddress, String status){
+		this.setUsername(username);
+		this.setIpaddress(ipaddress);
+		this.setStatus(status);
 	}
 	// Methods
 	@Id	
@@ -57,28 +62,39 @@ public class LoginLog {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	@ManyToOne(targetEntity = User.class)
-	@JoinColumn(name = "user_id")
-	public User getUser() {
-		return user;
+	
+	@Column(name = "user_name")
+	public String getUsername() {
+		return username;
 	}
-	public void setUser(User user) {
-		this.user = user;
+	public void setUsername(String username) {
+		this.username = username;
 	}
-	@Column(name = "appname")
+	
+	@Column(name = "ip_address")
+	public String getIpaddress() {
+		return ipaddress;
+	}
+	public void setIpaddress(String ipaddress) {
+		this.ipaddress = ipaddress;
+	}
+	
+	@Column(name = "app_name")
 	public String getAppname() {
 		return appname;
 	}
 	public void setAppname(String appname) {
 		this.appname = appname;
 	}
-	@Column(name = "success")
-	public Boolean getSuccess() {
-		return success;
+	
+	@Column(name = "status")
+	public String getStatus() {
+		return status;
 	}
-	public void setSuccess(Boolean success) {
-		this.success = success;
+	public void setStatus(String status) {
+		this.status = status;
 	}
+	
 	@Column(name = "modified",updatable = false, insertable = false)
 	public Date getModified() {
 		return modified;
@@ -86,13 +102,15 @@ public class LoginLog {
 	public void setModified(Date modified) {
 		this.modified = modified;
 	}
-	@Column(name = "created", updatable = false)
+	
+	@Column(name = "created", updatable = false, insertable = false)
 	public Date getCreated() {
 		return created;
 	}
 	public void setCreated(Date created) {
 		this.created = created;
 	}
+	
 	@Version 
 	@Column(name = "version")
 	public Long getVersion() {
@@ -101,5 +119,5 @@ public class LoginLog {
 	public void setVersion(Long version) {
 		this.version = version;
 	}
-	
+
 }

@@ -11,7 +11,7 @@ import org.toasthub.security.model.UserRole;
 
 public class SecurityUtils {
 
-	public static Map<String,RolePermission> effectivePermissions(List<UserRole> roles) {
+	public static Map<String,RolePermission> effectivePermissions(List<UserRole> roles) throws Exception {
 		Map<String,RolePermission> perms = new HashMap<String,RolePermission>();
 	
 		for(UserRole r : roles) {
@@ -23,9 +23,9 @@ public class SecurityUtils {
 		return perms;
 	}
 	
-	public static boolean containsPermission(User user, String code, String rights) {
+	public static boolean containsPermission(User user, String code, String rights) throws Exception {
 		boolean result = false;
-		if (user.getPermissions().containsKey(code)) {
+		if (user != null && user.getPermissions().containsKey(code)) {
 			String r = user.getPermissions().get(code).getR();
 			if ("W".equals(rights)) {
 				if ("W".equals(r)){

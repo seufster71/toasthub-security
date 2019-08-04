@@ -28,7 +28,7 @@ import org.picketbox.commons.cipher.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.toasthub.core.common.EntityManagerMainSvc;
 import org.toasthub.core.common.UtilSvc;
@@ -36,14 +36,12 @@ import org.toasthub.core.general.handler.ServiceProcessor;
 import org.toasthub.core.general.model.GlobalConstant;
 import org.toasthub.core.general.model.RestRequest;
 import org.toasthub.core.general.model.RestResponse;
-import org.toasthub.core.general.utils.TenantContext;
 import org.toasthub.core.mail.MailSvc;
 import org.toasthub.core.preference.model.AppCachePageUtil;
 import org.toasthub.core.preference.model.AppPageOptionValue;
-import org.toasthub.security.common.SecurityUtils;
 import org.toasthub.security.model.LoginLog;
+import org.toasthub.security.model.MyUserPrincipal;
 import org.toasthub.security.model.User;
-import org.toasthub.security.model.UserContext;
 
 @Service("UserManagerSvc")
 public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
@@ -55,7 +53,6 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 	@Autowired 
 	MailSvc mailSvc;
 	
-	//@Autowired Event<NewUserEvent> newUserEvent;
 	@Autowired 
 	UtilSvc utilSvc;
 	
@@ -64,9 +61,6 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 	
 	@Autowired 
 	EntityManagerMainSvc entityManagerMainSvc;
-
-	@Autowired 
-	UserContext userContext;
 	
 	// Constructor
 	public UserManagerSvcImpl() {}
@@ -74,7 +68,6 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 	// Processor
 	public void process(RestRequest request, RestResponse response) {
 		String action = (String) request.getParams().get(GlobalConstant.ACTION);
-		String tenant = TenantContext.getURLDomain();
 		switch (action) {
 		case "INIT": 
 			request.addParam(AppCachePageUtil.APPPAGEPARAMLOC, AppCachePageUtil.RESPONSE);
@@ -98,7 +91,8 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 			this.registerCheckUserName(request, response);
 			break;
 		case "LOGINAUTHENTICATE":
-			//this.userAuthenticate(request, response);
+			response.setStatus(RestResponse.SUCCESS);
+			response.addParam("USER", ((MyUserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser());
 			break;
 		case "TOKENAUTHENTICATE":
 			//this.userAuthenticate(request, response);
@@ -240,15 +234,21 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 		}
 		
 		Map<String,Object> inputList = (Map<String, Object>) request.getParam("inputFields");
+		if (!inputList.containsKey("LOGIN_FORM_USERNAME")) {
+			utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, AppCachePageUtil.getAppText(request, "LOGIN_SERVICE", "LOGIN_SERVICE_BADUSERNAME").getValue(), response);
+			logAccess(new LoginLog("EMPTY_NAME",(String) request.getParam("TENANT_URLDOMAIN"),LoginLog.FAIL_BAD_USER));
+			return;
+		}
 		User user = findUser((String) inputList.get("LOGIN_FORM_USERNAME"));
 		if (user == null){
 			utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, AppCachePageUtil.getAppText(request, "LOGIN_SERVICE", "LOGIN_SERVICE_BADUSERNAME").getValue(), response);
+			logAccess(new LoginLog((String) inputList.get("LOGIN_FORM_USERNAME"),(String) request.getParam("TENANT_URLDOMAIN"),LoginLog.FAIL_BAD_USER));
 		} else {
 			request.addParam("password", inputList.get("LOGIN_FORM_PASSWORD"));
 			boolean authenticated = authenticate(user, request);
 			if (authenticated ){
 				List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-				if (SecurityUtils.containsPermission(user, "ADMAREA", "R") ) {
+			/*	if (SecurityUtils.containsPermission(user, "ADMAREA", "R") ) {
 					authorities.add(new SimpleGrantedAuthority("ADMIN"));
 				}
 				if (SecurityUtils.containsPermission(user, "MEMAREA", "R")) {
@@ -256,10 +256,10 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 				}
 				if (SecurityUtils.containsPermission(user, "SYSAREA", "R")) {
 					authorities.add(new SimpleGrantedAuthority("SYSTEM"));
-				}
+				}*/
 				response.addParam("authorities", authorities);
 				response.addParam("user", user);
-				userContext.setCurrentUser(user);
+				//userContext.setCurrentUser(user);
 				
 				//userContext.loginWS(user);
 				//LoginLog loginLog = new LoginLog(user,true);
@@ -268,15 +268,13 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 		    	if (request.getParam("action").equals("LOGINAUTHENTICATE")){
 		    		response.addParam("token", user.getSessionToken());
 		    	}
+		    	logAccess(new LoginLog(user.getUsername(),(String) request.getParam("TENANT_URLDOMAIN"),LoginLog.SUCCESS));
 				utilSvc.addStatus(RestResponse.INFO, RestResponse.SUCCESS, "Authenticated", response);
 			} else if (!user.isEmailConfirm()){
-				LoginLog loginLog = new LoginLog(user,false);
-		    	logAccess(loginLog);
-
+				logAccess(new LoginLog(user.getUsername(),(String) request.getParam("TENANT_URLDOMAIN"),LoginLog.FAIL_BAD_EMAIL_CONFIRM));
 				utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, AppCachePageUtil.getAppText(request, "LOGIN_SERVICE", "LOGIN_SERVICE_CHECK_EMAIL_CONFIRM").getValue(), response);
 			} else {
-				LoginLog loginLog = new LoginLog(user,false);
-		    	logAccess(loginLog);
+				logAccess(new LoginLog(user.getUsername(),(String) request.getParam("TENANT_URLDOMAIN"),LoginLog.FAIL_BAD_PASS));
 				utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, AppCachePageUtil.getAppText(request, "LOGIN_SERVICE", "LOGIN_SERVICE_BADPASSWORD").getValue(), response);
 			}
 		}
@@ -498,7 +496,7 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 	}
 	
 	
-
+	@Override
 	public void logAccess(LoginLog loginLog) {
 		try {
 			userManagerDao.logAccess(loginLog);
