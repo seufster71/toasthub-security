@@ -179,9 +179,9 @@ public class UsersDaoImpl implements UsersDao {
 				query.setParameter("searchValue", "%"+((String)searchCriteria.get(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
 			}
 		}
-		if (request.containsParam(GlobalConstant.PAGELIMIT) && (Integer) request.getParam(GlobalConstant.PAGELIMIT) != 0){
-			query.setFirstResult((Integer) request.getParam(GlobalConstant.PAGESTART));
-			query.setMaxResults((Integer) request.getParam(GlobalConstant.PAGELIMIT));
+		if (request.containsParam(GlobalConstant.LISTLIMIT) && (Integer) request.getParam(GlobalConstant.LISTLIMIT) != 0){
+			query.setFirstResult((Integer) request.getParam(GlobalConstant.LISTSTART));
+			query.setMaxResults((Integer) request.getParam(GlobalConstant.LISTLIMIT));
 		}
 		@SuppressWarnings("unchecked")
 		List<User> users = query.getResultList();
@@ -272,9 +272,9 @@ public class UsersDaoImpl implements UsersDao {
 		if (request.getParam(GlobalConstant.SEARCHVALUE) != null && !((String)request.getParam(GlobalConstant.SEARCHVALUE)).isEmpty()){
 			query.setParameter("searchValue", ((String)request.getParam(GlobalConstant.SEARCHVALUE))+"%");
 		}
-		if ((Integer) request.getParam(GlobalConstant.PAGELIMIT) != 0){
-			query.setFirstResult((Integer) request.getParam(GlobalConstant.PAGESTART));
-			query.setMaxResults((Integer) request.getParam(GlobalConstant.PAGELIMIT));
+		if ((Integer) request.getParam(GlobalConstant.LISTLIMIT) != 0){
+			query.setFirstResult((Integer) request.getParam(GlobalConstant.LISTSTART));
+			query.setMaxResults((Integer) request.getParam(GlobalConstant.LISTLIMIT));
 		}
 		List<User> members = (List<User>) query.setParameter("id",userContext.getCurrentUser().getId()).getResultList();
 		
