@@ -69,7 +69,7 @@ public class UsersSvcImpl implements ServiceProcessor, UsersSvc {
 			}
 			response.addParam(GlobalConstant.ITEMNAME, request.getParam(GlobalConstant.ITEMNAME));
 			break;
-		case "SHOW":
+		case "ITEM":
 			this.item(request, response);
 			break;
 		case "EDIT":

@@ -165,7 +165,6 @@ public class UsersDaoImpl implements UsersDao {
 				and = true;
 			}
 		}
-
 		
 		Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
 		
@@ -179,6 +178,7 @@ public class UsersDaoImpl implements UsersDao {
 				query.setParameter("searchValue", "%"+((String)searchCriteria.get(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
 			}
 		}
+
 		if (request.containsParam(GlobalConstant.LISTLIMIT) && (Integer) request.getParam(GlobalConstant.LISTLIMIT) != 0){
 			query.setFirstResult((Integer) request.getParam(GlobalConstant.LISTSTART));
 			query.setMaxResults((Integer) request.getParam(GlobalConstant.LISTLIMIT));

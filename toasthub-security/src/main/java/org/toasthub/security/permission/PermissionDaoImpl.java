@@ -16,7 +16,10 @@
 
 package org.toasthub.security.permission;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Query;
 
@@ -51,10 +54,33 @@ public class PermissionDaoImpl implements PermissionDao {
 			and = true;
 		}
 		
-		if (request.containsParam(GlobalConstant.SEARCHVALUE) && !request.getParam(GlobalConstant.SEARCHVALUE).equals("")){
-			if (!and) { queryStr += " WHERE "; }
-			queryStr += "lt.lang =:lang AND lt.text LIKE :searchValue"; 
-			and = true;
+		ArrayList<LinkedHashMap<String,String>> searchCriteria = null;
+		if (request.containsParam(GlobalConstant.SEARCHCRITERIA) && !request.getParam(GlobalConstant.SEARCHCRITERIA).equals("")) {
+			if (request.getParam(GlobalConstant.SEARCHCRITERIA) instanceof Map) {
+				searchCriteria = new ArrayList<>();
+				searchCriteria.add((LinkedHashMap<String, String>) request.getParam(GlobalConstant.SEARCHCRITERIA));
+			} else {
+				searchCriteria = (ArrayList<LinkedHashMap<String, String>>) request.getParam(GlobalConstant.SEARCHCRITERIA);
+			}
+			if (!and) { queryStr += " WHERE "; } else { queryStr += " AND "; }
+			
+			// Loop through all the criteria
+			boolean or = false;
+			queryStr += " ( ";
+			for (LinkedHashMap<String,String> item : searchCriteria) {
+				if (item.containsKey(GlobalConstant.SEARCHCOLUMN) && item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_PERMISSION_TABLE_NAME")){
+					if (!or) { queryStr += " OR "; }
+					queryStr += "lt.lang =:lang AND lt.text LIKE :tableName"; 
+					or = true;
+				}
+				if (item.containsKey(GlobalConstant.SEARCHCOLUMN) && item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_PERMISSION_TABLE_CODE")){
+					if (!or) { queryStr += " OR "; }
+					queryStr += "p.code LIKE :tableCode"; 
+					or = true;
+				}
+			}
+			queryStr += " ) ";
+			
 		}
 		
 		Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
@@ -63,10 +89,18 @@ public class PermissionDaoImpl implements PermissionDao {
 			query.setParameter("active", (Boolean) request.getParam(GlobalConstant.ACTIVE));
 		} 
 		
-		if (request.containsParam(GlobalConstant.SEARCHVALUE) && !request.getParam(GlobalConstant.SEARCHVALUE).equals("")){
-			query.setParameter("searchValue", "%"+((String)request.getParam(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
-			query.setParameter("lang",request.getParam(GlobalConstant.LANG));
+		if (searchCriteria != null){
+			for (LinkedHashMap<String,String> item : searchCriteria) {
+				if (item.containsKey(GlobalConstant.SEARCHCOLUMN) && item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_PERMISSION_TABLE_NAME")){
+					query.setParameter("tableName", "%"+((String)request.getParam(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+					query.setParameter("lang",request.getParam(GlobalConstant.LANG));
+				}
+				if (item.containsKey(GlobalConstant.SEARCHCOLUMN) && item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_PERMISSION_TABLE_CODE")){
+					query.setParameter("tableCode", "%"+((String)request.getParam(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+				}
+			}
 		}
+		
 		if (request.containsParam(GlobalConstant.LISTLIMIT) && (Integer) request.getParam(GlobalConstant.LISTLIMIT) != 0){
 			query.setFirstResult((Integer) request.getParam(GlobalConstant.LISTSTART));
 			query.setMaxResults((Integer) request.getParam(GlobalConstant.LISTLIMIT));
