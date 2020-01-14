@@ -17,9 +17,12 @@
 package org.toasthub.security.application;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
+import org.hibernate.jpa.QueryHints;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,7 +61,7 @@ public class ApplicationDaoImpl implements ApplicationDao {
 			and = true;
 		}
 		
-		Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
+		TypedQuery<Application> query = entityManagerSecuritySvc.getInstance().createQuery(queryStr, Application.class);
 		
 		if (request.containsParam(GlobalConstant.ACTIVE)) {
 			query.setParameter("active", (Boolean) request.getParam(GlobalConstant.ACTIVE));
@@ -72,7 +75,7 @@ public class ApplicationDaoImpl implements ApplicationDao {
 			query.setFirstResult((Integer) request.getParam(GlobalConstant.LISTSTART));
 			query.setMaxResults((Integer) request.getParam(GlobalConstant.LISTLIMIT));
 		}
-		@SuppressWarnings("unchecked")
+
 		List<Application> applications = query.getResultList();
 
 		response.addParam(GlobalConstant.ITEMS, applications);
@@ -126,6 +129,37 @@ public class ApplicationDaoImpl implements ApplicationDao {
 		} else {
 			utilSvc.addStatus(RestResponse.ERROR, RestResponse.ACTIONFAILED, "Missing ID", response);
 		}
+	}
+
+	@Override
+	public void selectList(RestRequest request, RestResponse response) throws Exception {
+		String queryStr = "SELECT a.id, lt.text, t.defaultText FROM Application AS a JOIN a.title AS t JOIN t.langTexts as lt WHERE lt.lang =:lang ";
+
+		if (request.containsParam(GlobalConstant.ACTIVE)) {
+			queryStr += "a.active =:active ";
+		}
+		
+		if (request.containsParam(GlobalConstant.SEARCHVALUE) && !request.getParam(GlobalConstant.SEARCHVALUE).equals("")){
+			queryStr += "lt.lang =:lang AND lt.text LIKE :searchValue"; 
+		}
+		
+		Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
+		
+		query.setParameter("lang",request.getParam(GlobalConstant.LANG));
+		
+		if (request.containsParam(GlobalConstant.ACTIVE)) {
+			query.setParameter("active", (Boolean) request.getParam(GlobalConstant.ACTIVE));
+		} 
+		
+		if (request.containsParam(GlobalConstant.SEARCHVALUE) && !request.getParam(GlobalConstant.SEARCHVALUE).equals("")){
+			query.setParameter("searchValue", "%"+((String)request.getParam(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+		}
+		
+
+		List<Object> applications = query.getResultList();
+
+		response.addParam("applicationSelectList", applications);
+		
 	}
 
 }

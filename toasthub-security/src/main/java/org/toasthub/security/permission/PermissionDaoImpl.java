@@ -176,4 +176,10 @@ public class PermissionDaoImpl implements PermissionDao {
 		}
 	}
 
+	@Override
+	public void selectList(RestRequest request, RestResponse response) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

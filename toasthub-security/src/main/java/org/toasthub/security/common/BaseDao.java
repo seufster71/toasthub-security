@@ -8,4 +8,6 @@ public interface BaseDao {
 	public void items(RestRequest request, RestResponse response) throws Exception;
 	public void itemCount(RestRequest request, RestResponse response) throws Exception;
 	public void item(RestRequest request, RestResponse response) throws Exception;
+	
+	public void selectList(RestRequest request, RestResponse response) throws Exception;
 }

@@ -24,4 +24,6 @@ public interface ApplicationSvc {
 	public void itemCount(RestRequest request, RestResponse response);
 	public void item(RestRequest request, RestResponse response);
 	public void items(RestRequest request, RestResponse response);
+	
+	public void selectList(RestRequest request, RestResponse response);
 }

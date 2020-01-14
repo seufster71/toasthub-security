@@ -280,4 +280,10 @@ public class UsersDaoImpl implements UsersDao {
 		
 		response.addParam("members", members);
 	}
+
+	@Override
+	public void selectList(RestRequest request, RestResponse response) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
 }

@@ -147,5 +147,11 @@ public class UserManagerDaoImpl implements UserManagerDao {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void selectList(RestRequest request, RestResponse response) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

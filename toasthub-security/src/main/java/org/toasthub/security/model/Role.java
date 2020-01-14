@@ -87,7 +87,7 @@ public class Role extends ToastEntity implements Serializable {
 		this.permissions = permissions;
 	}
 	
-	@JsonIgnore
+	@JsonView({View.Admin.class})
 	@ManyToOne(targetEntity = Application.class)
 	@JoinColumn(name = "application_id")
 	public Application getApplication() {

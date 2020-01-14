@@ -17,6 +17,7 @@
 package org.toasthub.security.role;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Query;
 
@@ -42,22 +43,20 @@ public class RoleDaoImpl implements RoleDao {
 	@Override
 	public void items(RestRequest request, RestResponse response) throws Exception {
 		
-		String queryStr = "SELECT DISTINCT r FROM Role AS r JOIN FETCH r.title AS t JOIN FETCH t.langTexts as lt ";
+		String queryStr = "SELECT DISTINCT r FROM Role AS r JOIN FETCH r.title AS t JOIN FETCH t.langTexts as lt JOIN FETCH r.application AS a JOIN FETCH a.title AS at JOIN FETCH at.langTexts as alt "
+				+ "WHERE lt.lang =:lang AND alt.lang =:lang ";
 		
-		boolean and = false;
 		if (request.containsParam(GlobalConstant.ACTIVE)) {
-			if (!and) { queryStr += " WHERE "; }
 			queryStr += "r.active =:active ";
-			and = true;
 		}
 		
 		if (request.containsParam(GlobalConstant.SEARCHVALUE) && !request.getParam(GlobalConstant.SEARCHVALUE).equals("")){
-			if (!and) { queryStr += " WHERE "; }
-			queryStr += "lt.lang =:lang AND lt.text LIKE :searchValue"; 
-			and = true;
+			queryStr += "lt.text LIKE :searchValue"; 
 		}
 		
 		Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
+		
+		query.setParameter("lang",request.getParam(GlobalConstant.LANG));
 		
 		if (request.containsParam(GlobalConstant.ACTIVE)) {
 			query.setParameter("active", (Boolean) request.getParam(GlobalConstant.ACTIVE));
@@ -65,12 +64,12 @@ public class RoleDaoImpl implements RoleDao {
 		
 		if (request.containsParam(GlobalConstant.SEARCHVALUE) && !request.getParam(GlobalConstant.SEARCHVALUE).equals("")){
 			query.setParameter("searchValue", "%"+((String)request.getParam(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
-			query.setParameter("lang",request.getParam(GlobalConstant.LANG));
 		}
 		if (request.containsParam(GlobalConstant.LISTLIMIT) && (Integer) request.getParam(GlobalConstant.LISTLIMIT) != 0){
 			query.setFirstResult((Integer) request.getParam(GlobalConstant.LISTSTART));
 			query.setMaxResults((Integer) request.getParam(GlobalConstant.LISTLIMIT));
 		}
+		
 		@SuppressWarnings("unchecked")
 		List<Role> roles = query.getResultList();
 
@@ -140,6 +139,42 @@ public class RoleDaoImpl implements RoleDao {
 		} else {
 			utilSvc.addStatus(RestResponse.ERROR, RestResponse.ACTIONFAILED, "Missing ID", response);
 		}
+		
+	}
+
+	@Override
+	public void selectList(RestRequest request, RestResponse response) throws Exception {
+
+		String queryStr = "SELECT r.id, lt.text FROM Role AS r JOIN FETCH r.title AS t JOIN FETCH t.langTexts as lt WHERE lt.lang =:lang ";
+		
+		if (request.containsParam(GlobalConstant.ACTIVE)) {
+			queryStr += "r.active =:active ";
+		}
+		
+		if (request.containsParam(GlobalConstant.SEARCHVALUE) && !request.getParam(GlobalConstant.SEARCHVALUE).equals("")){
+			queryStr += "lt.text LIKE :searchValue"; 
+		}
+		
+		Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
+		
+		query.setParameter("lang",request.getParam(GlobalConstant.LANG));
+		
+		if (request.containsParam(GlobalConstant.ACTIVE)) {
+			query.setParameter("active", (Boolean) request.getParam(GlobalConstant.ACTIVE));
+		} 
+		
+		if (request.containsParam(GlobalConstant.SEARCHVALUE) && !request.getParam(GlobalConstant.SEARCHVALUE).equals("")){
+			query.setParameter("searchValue", "%"+((String)request.getParam(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+		}
+		if (request.containsParam(GlobalConstant.LISTLIMIT) && (Integer) request.getParam(GlobalConstant.LISTLIMIT) != 0){
+			query.setFirstResult((Integer) request.getParam(GlobalConstant.LISTSTART));
+			query.setMaxResults((Integer) request.getParam(GlobalConstant.LISTLIMIT));
+		}
+		
+		@SuppressWarnings("unchecked")
+		List<Map<Long,String>> roles = query.getResultList();
+
+		response.addParam("rolesSelectList", roles);
 		
 	}
 

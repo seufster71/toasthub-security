@@ -86,5 +86,15 @@ public class ApplicationSvcImpl implements ServiceProcessor, ApplicationSvc {
 		}
 	}
 
+	@Override
+	public void selectList(RestRequest request, RestResponse response) {
+		try {
+			applicationDao.selectList(request, response);
+		} catch (Exception e) {
+			utilSvc.addStatus(RestResponse.ERROR, RestResponse.ACTIONFAILED, "List failed", response);
+			e.printStackTrace();
+		}
+	}
+
 
 }
