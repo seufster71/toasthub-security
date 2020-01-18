@@ -16,6 +16,8 @@
 
 package org.toasthub.security.application;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -133,6 +135,7 @@ public class ApplicationDaoImpl implements ApplicationDao {
 
 	@Override
 	public void selectList(RestRequest request, RestResponse response) throws Exception {
+		List<Map<String,Object>> applications = new ArrayList<Map<String,Object>>();
 		String queryStr = "SELECT a.id, lt.text, t.defaultText FROM Application AS a JOIN a.title AS t JOIN t.langTexts as lt WHERE lt.lang =:lang ";
 
 		if (request.containsParam(GlobalConstant.ACTIVE)) {
@@ -156,7 +159,17 @@ public class ApplicationDaoImpl implements ApplicationDao {
 		}
 		
 
-		List<Object> applications = query.getResultList();
+		@SuppressWarnings("unchecked")
+		List<Object[]> results = query.getResultList();
+		
+		for (Object[] result : results) {
+			Map<String,Object> r = new HashMap<String,Object>();
+			r.put("value", result[0]);
+			r.put("text", result[1]);
+			r.put("defaultText", result[2]);
+			applications.add(r);
+		}
+			
 
 		response.addParam("applicationSelectList", applications);
 		
