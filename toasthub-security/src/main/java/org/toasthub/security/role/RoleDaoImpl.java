@@ -47,11 +47,11 @@ public class RoleDaoImpl implements RoleDao {
 				+ "WHERE lt.lang =:lang AND alt.lang =:lang ";
 		
 		if (request.containsParam(GlobalConstant.ACTIVE)) {
-			queryStr += "r.active =:active ";
+			queryStr += "AND r.active =:active ";
 		}
 		
 		if (request.containsParam(GlobalConstant.SEARCHVALUE) && !request.getParam(GlobalConstant.SEARCHVALUE).equals("")){
-			queryStr += "lt.text LIKE :searchValue"; 
+			queryStr += "AND lt.text LIKE :searchValue"; 
 		}
 		
 		Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);

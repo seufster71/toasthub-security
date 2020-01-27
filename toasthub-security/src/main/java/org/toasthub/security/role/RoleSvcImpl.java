@@ -24,6 +24,7 @@ import org.toasthub.core.general.handler.ServiceProcessor;
 import org.toasthub.core.general.model.GlobalConstant;
 import org.toasthub.core.general.model.RestRequest;
 import org.toasthub.core.general.model.RestResponse;
+import org.toasthub.security.model.Role;
 
 @Service("RoleSvc")
 public class RoleSvcImpl implements ServiceProcessor, RoleSvc {
@@ -70,6 +71,12 @@ public class RoleSvcImpl implements ServiceProcessor, RoleSvc {
 	public void item(RestRequest request, RestResponse response) {
 		try {
 			roleDao.item(request, response);
+			if (response.containsParam("item")) {
+				// Clear application and just return the id
+				Role r = (Role) response.getParam("item");
+				r.setApplicationId(r.getApplication().getId());
+				r.setApplication(null);
+			}
 		} catch (Exception e) {
 			utilSvc.addStatus(RestResponse.ERROR, RestResponse.ACTIONFAILED, "Item failed", response);
 			e.printStackTrace();

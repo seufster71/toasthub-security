@@ -32,6 +32,7 @@ import org.toasthub.core.general.model.GlobalConstant;
 import org.toasthub.core.general.model.RestRequest;
 import org.toasthub.core.general.model.RestResponse;
 import org.toasthub.security.model.Permission;
+import org.toasthub.security.model.RolePermission;
 
 @Repository("PermissionDao")
 @Transactional("TransactionManagerSecurity")
@@ -45,13 +46,11 @@ public class PermissionDaoImpl implements PermissionDao {
 	@Override
 	public void items(RestRequest request, RestResponse response) throws Exception {
 		
-		String queryStr = "SELECT DISTINCT p FROM Permission AS p JOIN FETCH p.title AS t JOIN FETCH t.langTexts as lt ";
+		String queryStr = "SELECT DISTINCT p FROM Permission AS p JOIN FETCH p.title AS t JOIN FETCH t.langTexts as lt JOIN FETCH p.application AS a JOIN FETCH a.title AS at JOIN FETCH at.langTexts as alt "
+			+ "WHERE lt.lang =:lang AND alt.lang =:lang ";
 		
-		boolean and = false;
 		if (request.containsParam(GlobalConstant.ACTIVE)) {
-			if (!and) { queryStr += " WHERE "; }
-			queryStr += "p.active =:active ";
-			and = true;
+			queryStr += "AND p.active =:active ";
 		}
 		
 		ArrayList<LinkedHashMap<String,String>> searchCriteria = null;
@@ -62,28 +61,34 @@ public class PermissionDaoImpl implements PermissionDao {
 			} else {
 				searchCriteria = (ArrayList<LinkedHashMap<String, String>>) request.getParam(GlobalConstant.SEARCHCRITERIA);
 			}
-			if (!and) { queryStr += " WHERE "; } else { queryStr += " AND "; }
 			
 			// Loop through all the criteria
 			boolean or = false;
-			queryStr += " ( ";
+			
+			String lookupStr = "";
 			for (LinkedHashMap<String,String> item : searchCriteria) {
-				if (item.containsKey(GlobalConstant.SEARCHCOLUMN) && item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_PERMISSION_TABLE_NAME")){
-					if (!or) { queryStr += " OR "; }
-					queryStr += "lt.lang =:lang AND lt.text LIKE :tableName"; 
+				if (item.containsKey(GlobalConstant.SEARCHVALUE) && !"".equals(item.get(GlobalConstant.SEARCHVALUE)) && 
+						item.containsKey(GlobalConstant.SEARCHCOLUMN) && item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_PERMISSION_TABLE_NAME")){
+					if (or) { lookupStr += " OR "; }
+					lookupStr += "lt.lang =:lang AND lt.text LIKE :nameValue"; 
 					or = true;
 				}
-				if (item.containsKey(GlobalConstant.SEARCHCOLUMN) && item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_PERMISSION_TABLE_CODE")){
-					if (!or) { queryStr += " OR "; }
-					queryStr += "p.code LIKE :tableCode"; 
+				if (item.containsKey(GlobalConstant.SEARCHVALUE) && !"".equals(item.get(GlobalConstant.SEARCHVALUE)) && 
+						item.containsKey(GlobalConstant.SEARCHCOLUMN) && item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_PERMISSION_TABLE_CODE")){
+					if (or) { lookupStr += " OR "; }
+					lookupStr += "p.code LIKE :codeValue"; 
 					or = true;
 				}
 			}
-			queryStr += " ) ";
+			if (!"".equals(lookupStr)) {
+				queryStr += " AND ( " + lookupStr + " ) ";
+			}
 			
 		}
 		
 		Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
+		
+		query.setParameter("lang",request.getParam(GlobalConstant.LANG));
 		
 		if (request.containsParam(GlobalConstant.ACTIVE)) {
 			query.setParameter("active", (Boolean) request.getParam(GlobalConstant.ACTIVE));
@@ -91,12 +96,14 @@ public class PermissionDaoImpl implements PermissionDao {
 		
 		if (searchCriteria != null){
 			for (LinkedHashMap<String,String> item : searchCriteria) {
-				if (item.containsKey(GlobalConstant.SEARCHCOLUMN) && item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_PERMISSION_TABLE_NAME")){
-					query.setParameter("tableName", "%"+((String)request.getParam(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+				if (item.containsKey(GlobalConstant.SEARCHVALUE) && !"".equals(item.get(GlobalConstant.SEARCHVALUE)) &&
+						item.containsKey(GlobalConstant.SEARCHCOLUMN)  && item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_PERMISSION_TABLE_NAME")){
+					query.setParameter("nameValue", "%"+((String)item.get(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
 					query.setParameter("lang",request.getParam(GlobalConstant.LANG));
 				}
-				if (item.containsKey(GlobalConstant.SEARCHCOLUMN) && item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_PERMISSION_TABLE_CODE")){
-					query.setParameter("tableCode", "%"+((String)request.getParam(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+				if (item.containsKey(GlobalConstant.SEARCHVALUE) && !"".equals(item.get(GlobalConstant.SEARCHVALUE)) && 
+						item.containsKey(GlobalConstant.SEARCHCOLUMN) && item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_PERMISSION_TABLE_CODE")){
+					query.setParameter("codeValue", "%"+((String)item.get(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
 				}
 			}
 		}
@@ -164,13 +171,13 @@ public class PermissionDaoImpl implements PermissionDao {
 	@Override
 	public void rolePermissionIds(RestRequest request, RestResponse response) {
 		if (request.containsParam("roleId") && !"".equals(request.getParam("roleId"))) {
-			String queryStr = "SELECT rp.permission.id FROM RolePermission AS rp WHERE rp.role.id =:id";
+			String queryStr = "SELECT new RolePermission(rp.active, rp.rights, rp.startDate, rp.endDate, rp.permission.id) FROM RolePermission AS rp WHERE rp.role.id =:id";
 			Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
 		
 			query.setParameter("id", new Long((Integer) request.getParam("roleId")));
-			List<Long> permissions = query.getResultList();
+			List<RolePermission> permissions = query.getResultList();
 			
-			response.addParam("permissionIds", permissions);
+			response.addParam("rolePermissions", permissions);
 		} else {
 			utilSvc.addStatus(RestResponse.ERROR, RestResponse.ACTIONFAILED, "Missing ID", response);
 		}

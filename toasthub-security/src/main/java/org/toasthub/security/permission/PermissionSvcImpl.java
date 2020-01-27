@@ -24,6 +24,7 @@ import org.toasthub.core.general.handler.ServiceProcessor;
 import org.toasthub.core.general.model.GlobalConstant;
 import org.toasthub.core.general.model.RestRequest;
 import org.toasthub.core.general.model.RestResponse;
+import org.toasthub.security.model.Permission;
 
 @Service("PermissionSvc")
 public class PermissionSvcImpl implements ServiceProcessor, PermissionSvc {
@@ -70,6 +71,12 @@ public class PermissionSvcImpl implements ServiceProcessor, PermissionSvc {
 	public void item(RestRequest request, RestResponse response) {
 		try {
 			permissionDao.item(request, response);
+			if (response.containsParam("item")) {
+				// Clear application and just return the id
+				Permission p = (Permission) response.getParam("item");
+				p.setApplicationId(p.getApplication().getId());
+				p.setApplication(null);
+			}
 		} catch (Exception e) {
 			utilSvc.addStatus(RestResponse.ERROR, RestResponse.ACTIONFAILED, "Item failed", response);
 			e.printStackTrace();

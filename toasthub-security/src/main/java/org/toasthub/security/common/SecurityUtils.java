@@ -17,7 +17,7 @@ public class SecurityUtils {
 		for(UserRole r : roles) {
 			Set<RolePermission> permissions = r.getRole().getPermissions();
 			for(RolePermission p : permissions){
-				perms.put(p.getC(), p);
+				perms.put(p.getCode(), p);
 			}
 		}
 		return perms;
@@ -26,7 +26,7 @@ public class SecurityUtils {
 	public static boolean containsPermission(User user, String code, String rights) throws Exception {
 		boolean result = false;
 		if (user != null && user.getPermissions().containsKey(code)) {
-			String r = user.getPermissions().get(code).getR();
+			String r = user.getPermissions().get(code).getRights();
 			if ("W".equals(rights)) {
 				if ("W".equals(r)){
 					result = true;

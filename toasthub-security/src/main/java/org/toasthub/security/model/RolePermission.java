@@ -29,11 +29,14 @@ import javax.persistence.Transient;
 import org.toasthub.core.general.api.View;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonView;
 
 /**
  * @author Edward H. Seufert
  */
+@JsonInclude(Include.NON_NULL)
 @Entity
 @Table(name = "role_permission")
 public class RolePermission extends BaseEntity implements Serializable {
@@ -42,10 +45,14 @@ public class RolePermission extends BaseEntity implements Serializable {
 	
 	protected Role role;
 	protected Permission permission;
-	protected String r;
-	protected Date s;
-	protected Date e;
-	protected String c;
+	protected String rights;
+	protected Date startDate;
+	protected Date endDate;
+
+	// transient
+	protected String code;
+	protected Long permissionId;
+	
 	
 	// Constructor
 	public RolePermission(){}
@@ -53,6 +60,14 @@ public class RolePermission extends BaseEntity implements Serializable {
 	public RolePermission(Role role, Permission permission) {
 		this.role = role;
 		this.permission = permission;
+	}
+	
+	public RolePermission(boolean active, String rights, Date startDate, Date endDate, Long permissionId) {
+		this.active = active;
+		this.rights = rights;
+		this.startDate = startDate;
+		this.endDate = endDate;
+		this.permissionId = permissionId;
 	}
 	
 	// Methods
@@ -78,35 +93,51 @@ public class RolePermission extends BaseEntity implements Serializable {
 	
 	@JsonView({View.Member.class,View.Admin.class,View.System.class})
 	@Column(name = "rights")
-	public String getR() {
-		return r;
+	public String getRights() {
+		return rights;
 	}
-	public void setR(String rights) {
-		this.r = rights;
+	public void setRights(String rights) {
+		this.rights = rights;
 	}
 	
 	@JsonView({View.Member.class,View.Admin.class,View.System.class})
 	@Column(name = "eff_start", updatable = false)
-	public Date getS() {
-		return s;
+	public Date getStartDate() {
+		return startDate;
 	}
-	public void setS(Date effStart) {
-		this.s = effStart;
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
 	}
 	
 	@JsonView({View.Member.class,View.Admin.class,View.System.class})
 	@Column(name = "eff_end", updatable = false)
-	public Date getE() {
-		return e;
+	public Date getEndDate() {
+		return endDate;
 	}
-	public void setE(Date effEnd) {
-		this.e = effEnd;
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
 	}
 	
 	@JsonView({View.Admin.class})
 	@Transient
-	public String getC() {
-		return permission.getCode();
+	public Long getPermissionId() {
+		if (this.permission == null) {
+			return this.permissionId;
+		} else {
+			return this.permission.getId();
+		}
+	}
+	public void setPermissionId(Long permissionId) {
+		this.permissionId = permissionId;
 	}
 	
+	@JsonView({View.Admin.class})
+	@Transient
+	public String getCode() {
+		if (this.permission == null) {
+			return this.code;
+		} else {
+			return permission.getCode();
+		}
+	}
 }

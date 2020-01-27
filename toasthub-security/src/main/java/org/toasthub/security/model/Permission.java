@@ -27,11 +27,8 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.toasthub.core.general.api.View;
-//import org.codehaus.jackson.annotate.JsonIgnore;
-//import org.codehaus.jackson.map.annotate.JsonView;
 import org.toasthub.security.model.Text;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 
 @Entity
@@ -46,6 +43,7 @@ public class Permission extends ToastEntity implements Serializable {
 	protected Date effEnd;
 	// transient
 	protected Long applicationId;
+	protected RolePermission rolePermission;
 	
 	// constructors
 	public Permission(){
@@ -85,7 +83,7 @@ public class Permission extends ToastEntity implements Serializable {
 		this.code = code;
 	}
 	
-	@JsonIgnore
+	@JsonView({View.Admin.class})
 	@ManyToOne(targetEntity = Application.class)
 	@JoinColumn(name = "application_id")
 	public Application getApplication() {
@@ -126,5 +124,12 @@ public class Permission extends ToastEntity implements Serializable {
 		this.applicationId = applicationId;
 	}
 	
-	
+	@JsonView({View.Admin.class})
+	@Transient
+	public RolePermission getRolePermission() {
+		return this.rolePermission;
+	}
+	public void setRolePermission(RolePermission rolePermission) {
+		this.rolePermission = rolePermission;
+	}
 }
