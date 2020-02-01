@@ -17,20 +17,14 @@
 package org.toasthub.security.model;
 
 import java.io.Serializable;
-import java.util.Set;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Version;
+import javax.persistence.Transient;
 
 import org.toasthub.core.general.api.View;
 
@@ -39,15 +33,18 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 @Entity
 @Table(name = "user_role")
-public class UserRole implements Serializable {
+public class UserRole extends BaseEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
-	protected Long id;
 	protected Role role;
 	protected User user;
 	protected Integer order;
-	protected Long version;
+	protected Date startDate;
+	protected Date endDate;
+	
+	// transient
+	protected Long roleId;
 	
 	// Constructor
 	public UserRole(){}
@@ -57,18 +54,17 @@ public class UserRole implements Serializable {
 		this.role = role;
 	}
 	
-	// Methods
-	
-	@Id	
-	@GeneratedValue(strategy=GenerationType.IDENTITY) 
-	@Column(name = "id")
-	public Long getId() {
-		return id;
-	}
-	public void setId(Long id) {
+	public UserRole(Long id, boolean active, Integer order, Date startDate, Date endDate, Long roleId) {
 		this.id = id;
+		this.active = active;
+		this.order = order;
+		this.startDate = startDate;
+		this.endDate = endDate;
+		this.roleId = roleId;
 	}
 	
+	// Methods
+	@JsonIgnore
 	@ManyToOne(targetEntity = Role.class)
 	@JoinColumn(name = "role_id")
 	public Role getRole() {
@@ -78,6 +74,7 @@ public class UserRole implements Serializable {
 		this.role = role;
 	}
 	
+	@JsonIgnore
 	@ManyToOne(targetEntity = User.class)
 	@JoinColumn(name = "user_id")
 	public User getUser() {
@@ -87,7 +84,7 @@ public class UserRole implements Serializable {
 		this.user = user;
 	}
 	
-	@JsonView({View.Admin.class})
+	@JsonView({View.Member.class,View.Admin.class,View.System.class})
 	@Column(name = "sort_order")
 	public Integer getOrder() {
 		return order;
@@ -96,13 +93,34 @@ public class UserRole implements Serializable {
 		this.order = order;
 	}
 	
-	@JsonIgnore
-	@Version 
-	@Column(name = "version")
-	public Long getVersion() {
-		return version;
+	@JsonView({View.Member.class,View.Admin.class,View.System.class})
+	@Column(name = "eff_start")
+	public Date getStartDate() {
+		return startDate;
 	}
-	public void setVersion(Long version) {
-		this.version = version;
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+	
+	@JsonView({View.Member.class,View.Admin.class,View.System.class})
+	@Column(name = "eff_end")
+	public Date getEndDate() {
+		return endDate;
+	}
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
+	}
+	
+	@JsonView({View.Admin.class})
+	@Transient
+	public Long getRoleId() {
+		if (this.role == null) {
+			return this.roleId;
+		} else {
+			return this.role.getId();
+		}
+	}
+	public void setRoleId(Long roleId) {
+		this.roleId = roleId;
 	}
 }

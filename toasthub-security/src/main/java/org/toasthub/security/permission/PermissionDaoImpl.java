@@ -171,7 +171,7 @@ public class PermissionDaoImpl implements PermissionDao {
 	@Override
 	public void rolePermissionIds(RestRequest request, RestResponse response) {
 		if (request.containsParam("roleId") && !"".equals(request.getParam("roleId"))) {
-			String queryStr = "SELECT new RolePermission(rp.active, rp.rights, rp.startDate, rp.endDate, rp.permission.id) FROM RolePermission AS rp WHERE rp.role.id =:id";
+			String queryStr = "SELECT new RolePermission(rp.id, rp.active, rp.rights, rp.startDate, rp.endDate, rp.permission.id) FROM RolePermission AS rp WHERE rp.role.id =:id";
 			Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
 		
 			query.setParameter("id", new Long((Integer) request.getParam("roleId")));

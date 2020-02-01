@@ -51,7 +51,8 @@ public class Role extends ToastEntity implements Serializable {
 	// transient
 	protected Long applicationId;
 	protected Set<Long> permissionIds;
-	
+	protected UserRole userRole;
+
 	// Constructors
 	public Role() {
 		this.setActive(true);
@@ -139,6 +140,15 @@ public class Role extends ToastEntity implements Serializable {
 	}
 	public void setPermissoinIds(Set<Long> permissionIds) {
 		this.permissionIds = permissionIds;
+	}
+	
+	@JsonView({View.Admin.class})
+	@Transient
+	public UserRole getUserRole() {
+		return userRole;
+	}
+	public void setUserRole(UserRole userRole) {
+		this.userRole = userRole;
 	}
 
 }

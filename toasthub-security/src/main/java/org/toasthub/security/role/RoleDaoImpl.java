@@ -129,13 +129,13 @@ public class RoleDaoImpl implements RoleDao {
 	@Override
 	public void userRoleIds(RestRequest request, RestResponse response) {
 		if (request.containsParam("userId") && !"".equals(request.getParam("userId"))) {
-			String queryStr = "SELECT ur.role.id FROM UserRole AS ur WHERE ur.user.id =:id";
+			String queryStr = "SELECT new UserRole(ur.id, ur.active, ur.order, ur.startDate, ur.endDate, ur.role.id) FROM UserRole AS ur WHERE ur.user.id =:id";
 			Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
 		
 			query.setParameter("id", new Long((Integer) request.getParam("userId")));
 			List<Long> roles = query.getResultList();
 			
-			response.addParam("roleIds", roles);
+			response.addParam("userRoles", roles);
 		} else {
 			utilSvc.addStatus(RestResponse.ERROR, RestResponse.ACTIONFAILED, "Missing ID", response);
 		}
