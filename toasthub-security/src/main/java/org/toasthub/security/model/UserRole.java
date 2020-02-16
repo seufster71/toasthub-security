@@ -17,7 +17,7 @@
 package org.toasthub.security.model;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.Instant;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -40,8 +40,8 @@ public class UserRole extends BaseEntity implements Serializable {
 	protected Role role;
 	protected User user;
 	protected Integer order;
-	protected Date startDate;
-	protected Date endDate;
+	protected Instant startDate;
+	protected Instant endDate;
 	
 	// transient
 	protected Long roleId;
@@ -54,7 +54,7 @@ public class UserRole extends BaseEntity implements Serializable {
 		this.role = role;
 	}
 	
-	public UserRole(Long id, boolean active, Integer order, Date startDate, Date endDate, Long roleId) {
+	public UserRole(Long id, boolean active, Integer order, Instant startDate, Instant endDate, Long roleId) {
 		this.id = id;
 		this.active = active;
 		this.order = order;
@@ -95,19 +95,19 @@ public class UserRole extends BaseEntity implements Serializable {
 	
 	@JsonView({View.Member.class,View.Admin.class,View.System.class})
 	@Column(name = "eff_start")
-	public Date getStartDate() {
+	public Instant getStartDate() {
 		return startDate;
 	}
-	public void setStartDate(Date startDate) {
+	public void setStartDate(Instant startDate) {
 		this.startDate = startDate;
 	}
 	
 	@JsonView({View.Member.class,View.Admin.class,View.System.class})
 	@Column(name = "eff_end")
-	public Date getEndDate() {
+	public Instant getEndDate() {
 		return endDate;
 	}
-	public void setEndDate(Date endDate) {
+	public void setEndDate(Instant endDate) {
 		this.endDate = endDate;
 	}
 	

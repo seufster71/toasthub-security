@@ -16,7 +16,7 @@
 package org.toasthub.security.model;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.Instant;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -46,8 +46,8 @@ public class RolePermission extends BaseEntity implements Serializable {
 	protected Role role;
 	protected Permission permission;
 	protected String rights;
-	protected Date startDate;
-	protected Date endDate;
+	protected Instant startDate;
+	protected Instant endDate;
 
 	// transient
 	protected String code;
@@ -62,7 +62,7 @@ public class RolePermission extends BaseEntity implements Serializable {
 		this.permission = permission;
 	}
 	
-	public RolePermission(Long id, boolean active, String rights, Date startDate, Date endDate, Long permissionId) {
+	public RolePermission(Long id, boolean active, String rights, Instant startDate, Instant endDate, Long permissionId) {
 		this.id = id;
 		this.active = active;
 		this.rights = rights;
@@ -103,19 +103,19 @@ public class RolePermission extends BaseEntity implements Serializable {
 	
 	@JsonView({View.Member.class,View.Admin.class,View.System.class})
 	@Column(name = "eff_start")
-	public Date getStartDate() {
+	public Instant getStartDate() {
 		return startDate;
 	}
-	public void setStartDate(Date startDate) {
+	public void setStartDate(Instant startDate) {
 		this.startDate = startDate;
 	}
 	
 	@JsonView({View.Member.class,View.Admin.class,View.System.class})
 	@Column(name = "eff_end")
-	public Date getEndDate() {
+	public Instant getEndDate() {
 		return endDate;
 	}
-	public void setEndDate(Date endDate) {
+	public void setEndDate(Instant endDate) {
 		this.endDate = endDate;
 	}
 	

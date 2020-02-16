@@ -17,7 +17,7 @@
 package org.toasthub.security.model;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.Instant;
 import java.util.Map;
 
 import javax.persistence.Column;
@@ -63,7 +63,7 @@ public class User extends BaseEntity implements Serializable {
 	private boolean forceReset;
 	private String lang;
 	private String logLevel;
-	private Date lastPassChange; // last password change this will be use to force password reset after x days
+	private Instant lastPassChange; // last password change this will be use to force password reset after x days
 	private Map<String,RolePermission> permissions;
 	
 	private String chatStatus;
@@ -77,8 +77,8 @@ public class User extends BaseEntity implements Serializable {
 		this.setActive(true);
 		this.setArchive(false);
 		this.setLocked(false);
-		this.setCreated(new Date());
-		this.setLastPassChange(new Date());
+		this.setCreated(Instant.now());
+		this.setLastPassChange(Instant.now());
 		this.setUsername(username);
 		this.setPassword(password);
 		this.setFirstname(firstname);
@@ -88,7 +88,7 @@ public class User extends BaseEntity implements Serializable {
 		this.setLang(lang);
 	}
 	// Constructor for list
-	public User(Long id, String firstname, String middlename, String lastname, boolean active, String username, Date created){
+	public User(Long id, String firstname, String middlename, String lastname, boolean active, String username, Instant created){
 		this.setId(id);
 		this.setFirstname(firstname);
 		this.setMiddlename(middlename);
@@ -102,7 +102,7 @@ public class User extends BaseEntity implements Serializable {
 		this.setActive(true);
 		this.setArchive(false);
 		this.setLocked(false);
-		this.setCreated(new Date());
+		this.setCreated(Instant.now());
 		//userInputHelper(request, response, formName);
 	}
 	// Setters/Getters
@@ -315,10 +315,10 @@ public class User extends BaseEntity implements Serializable {
 	
 	@JsonView({View.Admin.class})
 	@Column(name = "last_pass_change")
-	public Date getLastPassChange() {
+	public Instant getLastPassChange() {
 		return lastPassChange;
 	}
-	public void setLastPassChange(Date lastPassChange) {
+	public void setLastPassChange(Instant lastPassChange) {
 		this.lastPassChange = lastPassChange;
 	}
 	

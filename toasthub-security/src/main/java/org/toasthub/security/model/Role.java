@@ -17,7 +17,7 @@
 package org.toasthub.security.model;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -46,8 +46,8 @@ public class Role extends ToastEntity implements Serializable {
 	protected String code;
 	protected Application application;
 	protected Set<RolePermission> permissions;
-	protected Date effStart;
-	protected Date effEnd;
+	protected Instant effStart;
+	protected Instant effEnd;
 	// transient
 	protected Long applicationId;
 	protected Set<Long> permissionIds;
@@ -58,14 +58,14 @@ public class Role extends ToastEntity implements Serializable {
 		this.setActive(true);
 		this.setArchive(false);
 		this.setLocked(false);
-		this.setCreated(new Date());
+		this.setCreated(Instant.now());
 	}
 	
 	public Role(Text title) {
 		this.setActive(true);
 		this.setArchive(false);
 		this.setLocked(false);
-		this.setCreated(new Date());
+		this.setCreated(Instant.now());
 		this.setTitle(title);
 	}
 	
@@ -100,19 +100,19 @@ public class Role extends ToastEntity implements Serializable {
 	
 	@JsonView({View.Member.class,View.Admin.class})
 	@Column(name = "eff_start", updatable = false)
-	public Date getEffStart() {
+	public Instant getEffStart() {
 		return effStart;
 	}
-	public void setEffStart(Date effStart) {
+	public void setEffStart(Instant effStart) {
 		this.effStart = effStart;
 	}
 	
 	@JsonView({View.Member.class,View.Admin.class})
 	@Column(name = "eff_end", updatable = false)
-	public Date getEffEnd() {
+	public Instant getEffEnd() {
 		return effEnd;
 	}
-	public void setEffEnd(Date effEnd) {
+	public void setEffEnd(Instant effEnd) {
 		this.effEnd = effEnd;
 	}
 	

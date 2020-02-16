@@ -16,7 +16,7 @@
 
 package org.toasthub.security.model;
 
-import java.util.Date;
+import java.time.Instant;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -35,8 +35,8 @@ public class LoginLog {
 	private String ipaddress;
 	private String appname;
 	private String status;
-	private Date modified;
-	private Date created;
+	private Instant modified;
+	private Instant created;
 	private Long version;
 	
 	public final static String SUCCESS = "SUCCESS";
@@ -96,18 +96,18 @@ public class LoginLog {
 	}
 	
 	@Column(name = "modified",updatable = false, insertable = false)
-	public Date getModified() {
+	public Instant getModified() {
 		return modified;
 	}
-	public void setModified(Date modified) {
+	public void setModified(Instant modified) {
 		this.modified = modified;
 	}
 	
 	@Column(name = "created", updatable = false, insertable = false)
-	public Date getCreated() {
+	public Instant getCreated() {
 		return created;
 	}
-	public void setCreated(Date created) {
+	public void setCreated(Instant created) {
 		this.created = created;
 	}
 	
