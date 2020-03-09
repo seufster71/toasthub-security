@@ -128,10 +128,41 @@ public class PermissionDaoImpl implements PermissionDao {
 			and = true;
 		}
 		
-		if (request.containsParam(GlobalConstant.SEARCHVALUE) && !request.getParam(GlobalConstant.SEARCHVALUE).equals("")){
-			if (!and) { queryStr += " WHERE "; }
-			queryStr += "lt.lang =:lang AND lt.text LIKE :searchValue"; 
-			and = true;
+		ArrayList<LinkedHashMap<String,String>> searchCriteria = null;
+		if (request.containsParam(GlobalConstant.SEARCHCRITERIA) && !request.getParam(GlobalConstant.SEARCHCRITERIA).equals("")) {
+			if (request.getParam(GlobalConstant.SEARCHCRITERIA) instanceof Map) {
+				searchCriteria = new ArrayList<>();
+				searchCriteria.add((LinkedHashMap<String, String>) request.getParam(GlobalConstant.SEARCHCRITERIA));
+			} else {
+				searchCriteria = (ArrayList<LinkedHashMap<String, String>>) request.getParam(GlobalConstant.SEARCHCRITERIA);
+			}
+			
+			// Loop through all the criteria
+			boolean or = false;
+			
+			String lookupStr = "";
+			for (LinkedHashMap<String,String> item : searchCriteria) {
+				if (item.containsKey(GlobalConstant.SEARCHVALUE) && !"".equals(item.get(GlobalConstant.SEARCHVALUE)) && 
+						item.containsKey(GlobalConstant.SEARCHCOLUMN) && item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_PERMISSION_TABLE_NAME")){
+					if (or) { lookupStr += " OR "; }
+					lookupStr += "lt.lang =:lang AND lt.text LIKE :nameValue"; 
+					or = true;
+				}
+				if (item.containsKey(GlobalConstant.SEARCHVALUE) && !"".equals(item.get(GlobalConstant.SEARCHVALUE)) && 
+						item.containsKey(GlobalConstant.SEARCHCOLUMN) && item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_PERMISSION_TABLE_CODE")){
+					if (or) { lookupStr += " OR "; }
+					lookupStr += "p.code LIKE :codeValue"; 
+					or = true;
+				}
+			}
+			if (!"".equals(lookupStr)) {
+				if (!and) { 
+					queryStr += " WHERE ( " + lookupStr + " ) ";
+				} else {
+					queryStr += " AND ( " + lookupStr + " ) ";
+				}
+			}
+			
 		}
 
 		Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
@@ -140,9 +171,18 @@ public class PermissionDaoImpl implements PermissionDao {
 			query.setParameter("active", (Boolean) request.getParam(GlobalConstant.ACTIVE));
 		} 
 		
-		if (request.containsParam(GlobalConstant.SEARCHVALUE) && !request.getParam(GlobalConstant.SEARCHVALUE).equals("")){
-			query.setParameter("searchValue", "%"+((String)request.getParam(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
-			query.setParameter("lang",request.getParam(GlobalConstant.LANG));
+		if (searchCriteria != null){
+			for (LinkedHashMap<String,String> item : searchCriteria) {
+				if (item.containsKey(GlobalConstant.SEARCHVALUE) && !"".equals(item.get(GlobalConstant.SEARCHVALUE)) &&
+						item.containsKey(GlobalConstant.SEARCHCOLUMN)  && item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_PERMISSION_TABLE_NAME")){
+					query.setParameter("nameValue", "%"+((String)item.get(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+					query.setParameter("lang",request.getParam(GlobalConstant.LANG));
+				}
+				if (item.containsKey(GlobalConstant.SEARCHVALUE) && !"".equals(item.get(GlobalConstant.SEARCHVALUE)) && 
+						item.containsKey(GlobalConstant.SEARCHCOLUMN) && item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_PERMISSION_TABLE_CODE")){
+					query.setParameter("codeValue", "%"+((String)item.get(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+				}
+			}
 		}
 		
 		Long count = (Long) query.getSingleResult();
