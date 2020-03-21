@@ -16,7 +16,9 @@
 
 package org.toasthub.security.users;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -138,32 +140,108 @@ public class UsersDaoImpl implements UsersDao {
 			and = true;
 		}
 		
-		if (request.containsParam(GlobalConstant.SEARCHCRITERIA)) {
-			Map<String,Object> searchCriteria = (Map<String, Object>) request.getParam(GlobalConstant.SEARCHCRITERIA);
-			if (searchCriteria.containsKey(GlobalConstant.SEARCHVALUE) && !"".equals(searchCriteria.get(GlobalConstant.SEARCHVALUE))
-				&& searchCriteria.containsKey(GlobalConstant.SEARCHCOLUMN) && !"".equals(searchCriteria.get(GlobalConstant.SEARCHCOLUMN))){
-				if (!and) { queryStr += " WHERE "; } else { queryStr += " AND "; }
-				String key = (String) searchCriteria.get(GlobalConstant.SEARCHCOLUMN);
-				switch (key) {
-				case "ADMIN_USER_TABLE_USERNAME":
-					queryStr += " u.username LIKE :searchValue "; 
-					break;
-				case "ADMIN_USER_TABLE_FIRSTNAME":
-					queryStr += " u.firstname LIKE :searchValue";
-					break;
-				case "ADMIN_USER_TABLE_LASTNAME":
-					queryStr += " u.lastname LIKE :searchValue ";
-					break;
-				case "ADMIN_USER_TABLE_BOTH":
-					queryStr += " u.firstname LIKE :searchValue OR u.lastname LIKE :searchValue OR u.username LIKE :searchValue";
-					break;
-				default:
-					break;
-				}
-				 
-				
-				and = true;
+		// search
+		ArrayList<LinkedHashMap<String,String>> searchCriteria = null;
+		if (request.containsParam(GlobalConstant.SEARCHCRITERIA) && !request.getParam(GlobalConstant.SEARCHCRITERIA).equals("")) {
+			if (request.getParam(GlobalConstant.SEARCHCRITERIA) instanceof Map) {
+				searchCriteria = new ArrayList<>();
+				searchCriteria.add((LinkedHashMap<String, String>) request.getParam(GlobalConstant.SEARCHCRITERIA));
+			} else {
+				searchCriteria = (ArrayList<LinkedHashMap<String, String>>) request.getParam(GlobalConstant.SEARCHCRITERIA);
 			}
+			
+			// Loop through all the criteria
+			boolean or = false;
+			
+			String lookupStr = "";
+			for (LinkedHashMap<String,String> item : searchCriteria) {
+				if (item.containsKey(GlobalConstant.SEARCHVALUE) && !"".equals(item.get(GlobalConstant.SEARCHVALUE)) && item.containsKey(GlobalConstant.SEARCHCOLUMN)) {
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_USER_TABLE_FIRSTNAME")){
+						if (or) { lookupStr += " OR "; }
+						lookupStr += "u.firstname LIKE :firstnameValue"; 
+						or = true;
+					}
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_USER_TABLE_LASTNAME")){
+						if (or) { lookupStr += " OR "; }
+						lookupStr += "u.lastname LIKE :lastnameValue"; 
+						or = true;
+					}
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_USER_TABLE_USERNAME")){
+						if (or) { lookupStr += " OR "; }
+						lookupStr += "u.username LIKE :usernameValue"; 
+						or = true;
+					}
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_USER_TABLE_EMAIL")){
+						if (or) { lookupStr += " OR "; }
+						lookupStr += "u.email LIKE :emailValue"; 
+						or = true;
+					}
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_USER_TABLE_STATUS")){
+						if (or) { lookupStr += " OR "; }
+						lookupStr += "u.active LIKE :statusValue"; 
+						or = true;
+					}
+				}
+			}
+			if (!"".equals(lookupStr)) {
+				if (!and) { 
+					queryStr += " WHERE ( " + lookupStr + " ) ";
+				} else {
+					queryStr += " AND ( " + lookupStr + " ) ";
+				}
+			}
+			
+		}
+		// order by
+		ArrayList<LinkedHashMap<String,String>> orderCriteria = null;
+		StringBuilder orderItems = new StringBuilder();
+		if (request.containsParam(GlobalConstant.ORDERCRITERIA) && !request.getParam(GlobalConstant.ORDERCRITERIA).equals("")) {
+			if (request.getParam(GlobalConstant.ORDERCRITERIA) instanceof Map) {
+				orderCriteria = new ArrayList<>();
+				orderCriteria.add((LinkedHashMap<String, String>) request.getParam(GlobalConstant.ORDERCRITERIA));
+			} else {
+				orderCriteria = (ArrayList<LinkedHashMap<String, String>>) request.getParam(GlobalConstant.ORDERCRITERIA);
+			}
+			
+			// Loop through all the criteria
+			boolean comma = false;
+			
+			
+			for (LinkedHashMap<String,String> item : orderCriteria) {
+				if (item.containsKey(GlobalConstant.ORDERCOLUMN) && item.containsKey(GlobalConstant.ORDERDIR)) {
+					if (item.get(GlobalConstant.ORDERCOLUMN).equals("ADMIN_USER_TABLE_FIRSTNAME")){
+						if (comma) { orderItems.append(","); }
+						orderItems.append("u.firstname ").append(item.get(GlobalConstant.ORDERDIR));
+						comma = true;
+					}
+					if (item.get(GlobalConstant.ORDERCOLUMN).equals("ADMIN_USER_TABLE_LASTNAME")){
+						if (comma) { orderItems.append(","); }
+						orderItems.append("u.lastname ").append(item.get(GlobalConstant.ORDERDIR));
+						comma = true;
+					}
+					if (item.get(GlobalConstant.ORDERCOLUMN).equals("ADMIN_USER_TABLE_USERNAME")){
+						if (comma) { orderItems.append(","); }
+						orderItems.append("u.username ").append(item.get(GlobalConstant.ORDERDIR));
+						comma = true;
+					}
+					if (item.get(GlobalConstant.ORDERCOLUMN).equals("ADMIN_USER_TABLE_EMAIL")){
+						if (comma) { orderItems.append(","); }
+						orderItems.append("u.email ").append(item.get(GlobalConstant.ORDERDIR));
+						comma = true;
+					}
+					if (item.get(GlobalConstant.ORDERCOLUMN).equals("ADMIN_USER_TABLE_STATUS")){
+						if (comma) { orderItems.append(","); }
+						orderItems.append("u.active ").append(item.get(GlobalConstant.ORDERDIR));
+						comma = true;
+					}
+				}
+			}
+		}
+		if (!"".equals(orderItems.toString())) {
+			queryStr += " ORDER BY ".concat(orderItems.toString());
+		} else {
+			// default order
+			queryStr += " ORDER BY u.lastname";
 		}
 		
 		Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
@@ -172,10 +250,29 @@ public class UsersDaoImpl implements UsersDao {
 			query.setParameter("active", (Boolean) request.getParam(GlobalConstant.ACTIVE));
 		} 
 		
-		if (request.containsParam(GlobalConstant.SEARCHCRITERIA)) {
-			Map<String,Object> searchCriteria = (Map<String, Object>) request.getParam(GlobalConstant.SEARCHCRITERIA);
-			if (searchCriteria.containsKey(GlobalConstant.SEARCHVALUE) && !"".equals(searchCriteria.get(GlobalConstant.SEARCHVALUE))){
-				query.setParameter("searchValue", "%"+((String)searchCriteria.get(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+		if (searchCriteria != null){
+			for (LinkedHashMap<String,String> item : searchCriteria) {
+				if (item.containsKey(GlobalConstant.SEARCHVALUE) && !"".equals(item.get(GlobalConstant.SEARCHVALUE)) && item.containsKey(GlobalConstant.SEARCHCOLUMN)) {  
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_USER_TABLE_FIRSTNAME")){
+						query.setParameter("firstnameValue", "%"+((String)item.get(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+					}
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_USER_TABLE_LASTNAME")){
+						query.setParameter("lastnameValue", "%"+((String)item.get(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+					}
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_USER_TABLE_USERNAME")){
+						query.setParameter("usernameValue", "%"+((String)item.get(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+					}
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_USER_TABLE_EMAIL")){
+						query.setParameter("emailValue", "%"+((String)item.get(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+					}
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_USER_TABLE_STATUS")){
+						if ("active".equalsIgnoreCase((String)item.get(GlobalConstant.SEARCHVALUE))) {
+							query.setParameter("statusValue", true);
+						} else if ("disabled".equalsIgnoreCase((String)item.get(GlobalConstant.SEARCHVALUE))) {
+							query.setParameter("statusValue", false);
+						}
+					}
+				}
 			}
 		}
 
@@ -191,39 +288,64 @@ public class UsersDaoImpl implements UsersDao {
 
 	@Override
 	public void itemCount(RestRequest request, RestResponse response) throws Exception {
-		String queryStr = "SELECT COUNT(*) FROM User AS u ";
+		String queryStr = "SELECT COUNT(DISTINCT u) FROM User AS u ";
 		boolean and = false;
 		if (request.containsParam(GlobalConstant.ACTIVE)) {
 			if (!and) { queryStr += " WHERE "; }
 			queryStr += "u.active =:active ";
 			and = true;
 		}
-		if (request.containsParam(GlobalConstant.SEARCHCRITERIA)) {
-			Map<String,Object> searchCriteria = (Map<String, Object>) request.getParam(GlobalConstant.SEARCHCRITERIA);
-			if (searchCriteria.containsKey(GlobalConstant.SEARCHVALUE) && !"".equals(searchCriteria.get(GlobalConstant.SEARCHVALUE))
-				&& searchCriteria.containsKey(GlobalConstant.SEARCHCOLUMN) && !"".equals(searchCriteria.get(GlobalConstant.SEARCHCOLUMN))){
-				if (!and) { queryStr += " WHERE "; } else { queryStr += " AND "; }
-				String key = (String) searchCriteria.get(GlobalConstant.SEARCHCOLUMN);
-				switch (key) {
-				case "ADMIN_USER_TABLE_USERNAME":
-					queryStr += " u.username LIKE :searchValue "; 
-					break;
-				case "ADMIN_USER_TABLE_FIRSTNAME":
-					queryStr += " u.firstname LIKE :searchValue";
-					break;
-				case "ADMIN_USER_TABLE_LASTNAME":
-					queryStr += " u.lastname LIKE :searchValue ";
-					break;
-				case "ADMIN_USER_TABLE_BOTH":
-					queryStr += " u.firstname LIKE :searchValue OR u.lastname LIKE :searchValue OR u.username LIKE :searchValue";
-					break;
-				default:
-					break;
-				}
-				 
-				
-				and = true;
+		
+		ArrayList<LinkedHashMap<String,String>> searchCriteria = null;
+		if (request.containsParam(GlobalConstant.SEARCHCRITERIA) && !request.getParam(GlobalConstant.SEARCHCRITERIA).equals("")) {
+			if (request.getParam(GlobalConstant.SEARCHCRITERIA) instanceof Map) {
+				searchCriteria = new ArrayList<>();
+				searchCriteria.add((LinkedHashMap<String, String>) request.getParam(GlobalConstant.SEARCHCRITERIA));
+			} else {
+				searchCriteria = (ArrayList<LinkedHashMap<String, String>>) request.getParam(GlobalConstant.SEARCHCRITERIA);
 			}
+			
+			// Loop through all the criteria
+			boolean or = false;
+			
+			String lookupStr = "";
+			for (LinkedHashMap<String,String> item : searchCriteria) {
+				if (item.containsKey(GlobalConstant.SEARCHVALUE) && !"".equals(item.get(GlobalConstant.SEARCHVALUE)) && item.containsKey(GlobalConstant.SEARCHCOLUMN)) {
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_USER_TABLE_FIRSTNAME")){
+						if (or) { lookupStr += " OR "; }
+						lookupStr += "u.firstname LIKE :firstnameValue"; 
+						or = true;
+					}
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_USER_TABLE_LASTNAME")){
+						if (or) { lookupStr += " OR "; }
+						lookupStr += "u.lastname LIKE :lastnameValue"; 
+						or = true;
+					}
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_USER_TABLE_USERNAME")){
+						if (or) { lookupStr += " OR "; }
+						lookupStr += "u.username LIKE :usernameValue"; 
+						or = true;
+					}
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_USER_TABLE_EMAIL")){
+						if (or) { lookupStr += " OR "; }
+						lookupStr += "u.email LIKE :emailValue"; 
+						or = true;
+					}
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_ROLE_TABLE_STATUS")){
+						if (or) { lookupStr += " OR "; }
+						lookupStr += "u.active LIKE :statusValue"; 
+						or = true;
+					}
+				}
+			}
+			if (!"".equals(lookupStr)) {
+				if (!and) { 
+					queryStr += " WHERE ( " + lookupStr + " ) ";
+				} else {
+					queryStr += " AND ( " + lookupStr + " ) ";
+				}
+			}
+			
 		}
 
 		Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
@@ -232,12 +354,32 @@ public class UsersDaoImpl implements UsersDao {
 			query.setParameter("active", (Boolean) request.getParam(GlobalConstant.ACTIVE));
 		} 
 		
-		if (request.containsParam(GlobalConstant.SEARCHCRITERIA)) {
-			Map<String,Object> searchCriteria = (Map<String, Object>) request.getParam(GlobalConstant.SEARCHCRITERIA);
-			if (searchCriteria.containsKey(GlobalConstant.SEARCHVALUE) && !"".equals(searchCriteria.get(GlobalConstant.SEARCHVALUE))){
-				query.setParameter("searchValue", "%"+((String)searchCriteria.get(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+		if (searchCriteria != null){
+			for (LinkedHashMap<String,String> item : searchCriteria) {
+				if (item.containsKey(GlobalConstant.SEARCHVALUE) && !"".equals(item.get(GlobalConstant.SEARCHVALUE)) && item.containsKey(GlobalConstant.SEARCHCOLUMN)) {  
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_USER_TABLE_FIRSTNAME")){
+						query.setParameter("firstnameValue", "%"+((String)item.get(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+					}
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_USER_TABLE_LASTNAME")){
+						query.setParameter("lastnameValue", "%"+((String)item.get(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+					}
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_USER_TABLE_USERNAME")){
+						query.setParameter("usernameValue", "%"+((String)item.get(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+					}
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_USER_TABLE_EMAIL")){
+						query.setParameter("emailValue", "%"+((String)item.get(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+					}
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_ROLE_TABLE_STATUS")){
+						if ("active".equalsIgnoreCase((String)item.get(GlobalConstant.SEARCHVALUE))) {
+							query.setParameter("statusValue", true);
+						} else if ("disabled".equalsIgnoreCase((String)item.get(GlobalConstant.SEARCHVALUE))) {
+							query.setParameter("statusValue", false);
+						}
+					}
+				}
 			}
 		}
+		
 		Long count = (Long) query.getSingleResult();
 		if (count == null){
 			count = 0l;

@@ -16,6 +16,8 @@
 
 package org.toasthub.security.role;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -50,9 +52,97 @@ public class RoleDaoImpl implements RoleDao {
 			queryStr += "AND r.active =:active ";
 		}
 		
-		if (request.containsParam(GlobalConstant.SEARCHVALUE) && !request.getParam(GlobalConstant.SEARCHVALUE).equals("")){
-			queryStr += "AND lt.text LIKE :searchValue"; 
+		// search
+		ArrayList<LinkedHashMap<String,String>> searchCriteria = null;
+		if (request.containsParam(GlobalConstant.SEARCHCRITERIA) && !request.getParam(GlobalConstant.SEARCHCRITERIA).equals("")) {
+			if (request.getParam(GlobalConstant.SEARCHCRITERIA) instanceof Map) {
+				searchCriteria = new ArrayList<>();
+				searchCriteria.add((LinkedHashMap<String, String>) request.getParam(GlobalConstant.SEARCHCRITERIA));
+			} else {
+				searchCriteria = (ArrayList<LinkedHashMap<String, String>>) request.getParam(GlobalConstant.SEARCHCRITERIA);
+			}
+			
+			// Loop through all the criteria
+			boolean or = false;
+			
+			String lookupStr = "";
+			for (LinkedHashMap<String,String> item : searchCriteria) {
+				if (item.containsKey(GlobalConstant.SEARCHVALUE) && !"".equals(item.get(GlobalConstant.SEARCHVALUE)) && item.containsKey(GlobalConstant.SEARCHCOLUMN)) {
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_ROLE_TABLE_NAME")){
+						if (or) { lookupStr += " OR "; }
+						lookupStr += "lt.lang =:lang AND lt.text LIKE :nameValue"; 
+						or = true;
+					}
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_ROLE_TABLE_CODE")){
+						if (or) { lookupStr += " OR "; }
+						lookupStr += "r.code LIKE :codeValue"; 
+						or = true;
+					}
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_ROLE_TABLE_APPLICATION")){
+						if (or) { lookupStr += " OR "; }
+						lookupStr += "r.application.code LIKE :appValue"; 
+						or = true;
+					}
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_ROLE_TABLE_STATUS")){
+						if (or) { lookupStr += " OR "; }
+						lookupStr += "r.active LIKE :statusValue"; 
+						or = true;
+					}
+				}
+			}
+			if (!"".equals(lookupStr)) {
+				queryStr += " AND ( " + lookupStr + " ) ";
+			}
+			
 		}
+		// order by
+		ArrayList<LinkedHashMap<String,String>> orderCriteria = null;
+		StringBuilder orderItems = new StringBuilder();
+		if (request.containsParam(GlobalConstant.ORDERCRITERIA) && !request.getParam(GlobalConstant.ORDERCRITERIA).equals("")) {
+			if (request.getParam(GlobalConstant.ORDERCRITERIA) instanceof Map) {
+				orderCriteria = new ArrayList<>();
+				orderCriteria.add((LinkedHashMap<String, String>) request.getParam(GlobalConstant.ORDERCRITERIA));
+			} else {
+				orderCriteria = (ArrayList<LinkedHashMap<String, String>>) request.getParam(GlobalConstant.ORDERCRITERIA);
+			}
+			
+			// Loop through all the criteria
+			boolean comma = false;
+			
+			
+			for (LinkedHashMap<String,String> item : orderCriteria) {
+				if (item.containsKey(GlobalConstant.ORDERCOLUMN) && item.containsKey(GlobalConstant.ORDERDIR)) {
+					if (item.get(GlobalConstant.ORDERCOLUMN).equals("ADMIN_ROLE_TABLE_NAME")){
+						if (comma) { orderItems.append(","); }
+						orderItems.append("lt.text ").append(item.get(GlobalConstant.ORDERDIR));
+						comma = true;
+					}
+					if (item.get(GlobalConstant.ORDERCOLUMN).equals("ADMIN_ROLE_TABLE_CODE")){
+						if (comma) { orderItems.append(","); }
+						orderItems.append("r.code ").append(item.get(GlobalConstant.ORDERDIR));
+						comma = true;
+					}
+					if (item.get(GlobalConstant.ORDERCOLUMN).equals("ADMIN_ROLE_TABLE_APPLICATION")){
+						if (comma) { orderItems.append(","); }
+						orderItems.append("r.application.code ").append(item.get(GlobalConstant.ORDERDIR));
+						comma = true;
+					}
+					if (item.get(GlobalConstant.ORDERCOLUMN).equals("ADMIN_ROLE_TABLE_STATUS")){
+						if (comma) { orderItems.append(","); }
+						orderItems.append("r.active ").append(item.get(GlobalConstant.ORDERDIR));
+						comma = true;
+					}
+				}
+			}
+		}
+		if (!"".equals(orderItems.toString())) {
+			queryStr += " ORDER BY ".concat(orderItems.toString());
+		} else {
+			// default order
+			queryStr += " ORDER BY lt.text";
+		}
+		
+		
 		
 		Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
 		
@@ -62,8 +152,28 @@ public class RoleDaoImpl implements RoleDao {
 			query.setParameter("active", (Boolean) request.getParam(GlobalConstant.ACTIVE));
 		} 
 		
-		if (request.containsParam(GlobalConstant.SEARCHVALUE) && !request.getParam(GlobalConstant.SEARCHVALUE).equals("")){
-			query.setParameter("searchValue", "%"+((String)request.getParam(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+		if (searchCriteria != null){
+			for (LinkedHashMap<String,String> item : searchCriteria) {
+				if (item.containsKey(GlobalConstant.SEARCHVALUE) && !"".equals(item.get(GlobalConstant.SEARCHVALUE)) && item.containsKey(GlobalConstant.SEARCHCOLUMN)) {  
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_ROLE_TABLE_NAME")){
+						query.setParameter("nameValue", "%"+((String)item.get(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+						query.setParameter("lang",request.getParam(GlobalConstant.LANG));
+					}
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_ROLE_TABLE_CODE")){
+						query.setParameter("codeValue", "%"+((String)item.get(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+					}
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_ROLE_TABLE_APPLICATION")){
+						query.setParameter("appValue", "%"+((String)item.get(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+					}
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_ROLE_TABLE_STATUS")){
+						if ("active".equalsIgnoreCase((String)item.get(GlobalConstant.SEARCHVALUE))) {
+							query.setParameter("statusValue", true);
+						} else if ("disabled".equalsIgnoreCase((String)item.get(GlobalConstant.SEARCHVALUE))) {
+							query.setParameter("statusValue", false);
+						}
+					}
+				}
+			}
 		}
 		if (request.containsParam(GlobalConstant.LISTLIMIT) && (Integer) request.getParam(GlobalConstant.LISTLIMIT) != 0){
 			query.setFirstResult((Integer) request.getParam(GlobalConstant.LISTSTART));
@@ -86,10 +196,51 @@ public class RoleDaoImpl implements RoleDao {
 			and = true;
 		}
 		
-		if (request.containsParam(GlobalConstant.SEARCHVALUE) && !request.getParam(GlobalConstant.SEARCHVALUE).equals("")){
-			if (!and) { queryStr += " WHERE "; }
-			queryStr += "lt.lang =:lang AND lt.text LIKE :searchValue"; 
-			and = true;
+		ArrayList<LinkedHashMap<String,String>> searchCriteria = null;
+		if (request.containsParam(GlobalConstant.SEARCHCRITERIA) && !request.getParam(GlobalConstant.SEARCHCRITERIA).equals("")) {
+			if (request.getParam(GlobalConstant.SEARCHCRITERIA) instanceof Map) {
+				searchCriteria = new ArrayList<>();
+				searchCriteria.add((LinkedHashMap<String, String>) request.getParam(GlobalConstant.SEARCHCRITERIA));
+			} else {
+				searchCriteria = (ArrayList<LinkedHashMap<String, String>>) request.getParam(GlobalConstant.SEARCHCRITERIA);
+			}
+			
+			// Loop through all the criteria
+			boolean or = false;
+			
+			String lookupStr = "";
+			for (LinkedHashMap<String,String> item : searchCriteria) {
+				if (item.containsKey(GlobalConstant.SEARCHVALUE) && !"".equals(item.get(GlobalConstant.SEARCHVALUE)) && item.containsKey(GlobalConstant.SEARCHCOLUMN)) {
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_ROLE_TABLE_NAME")){
+						if (or) { lookupStr += " OR "; }
+						lookupStr += "lt.lang =:lang AND lt.text LIKE :nameValue"; 
+						or = true;
+					}
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_ROLE_TABLE_CODE")){
+						if (or) { lookupStr += " OR "; }
+						lookupStr += "r.code LIKE :codeValue"; 
+						or = true;
+					}
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_ROLE_TABLE_APPLICATION")){
+						if (or) { lookupStr += " OR "; }
+						lookupStr += "r.application.code LIKE :appValue"; 
+						or = true;
+					}
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_ROLE_TABLE_STATUS")){
+						if (or) { lookupStr += " OR "; }
+						lookupStr += "r.active LIKE :statusValue"; 
+						or = true;
+					}
+				}
+			}
+			if (!"".equals(lookupStr)) {
+				if (!and) { 
+					queryStr += " WHERE ( " + lookupStr + " ) ";
+				} else {
+					queryStr += " AND ( " + lookupStr + " ) ";
+				}
+			}
+			
 		}
 
 		Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
@@ -98,9 +249,28 @@ public class RoleDaoImpl implements RoleDao {
 			query.setParameter("active", (Boolean) request.getParam(GlobalConstant.ACTIVE));
 		} 
 		
-		if (request.containsParam(GlobalConstant.SEARCHVALUE) && !request.getParam(GlobalConstant.SEARCHVALUE).equals("")){
-			query.setParameter("searchValue", "%"+((String)request.getParam(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
-			query.setParameter("lang",request.getParam(GlobalConstant.LANG));
+		if (searchCriteria != null){
+			for (LinkedHashMap<String,String> item : searchCriteria) {
+				if (item.containsKey(GlobalConstant.SEARCHVALUE) && !"".equals(item.get(GlobalConstant.SEARCHVALUE)) && item.containsKey(GlobalConstant.SEARCHCOLUMN)) {  
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_ROLE_TABLE_NAME")){
+						query.setParameter("nameValue", "%"+((String)item.get(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+						query.setParameter("lang",request.getParam(GlobalConstant.LANG));
+					}
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_ROLE_TABLE_CODE")){
+						query.setParameter("codeValue", "%"+((String)item.get(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+					}
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_ROLE_TABLE_APPLICATION")){
+						query.setParameter("appValue", "%"+((String)item.get(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+					}
+					if (item.get(GlobalConstant.SEARCHCOLUMN).equals("ADMIN_ROLE_TABLE_STATUS")){
+						if ("active".equalsIgnoreCase((String)item.get(GlobalConstant.SEARCHVALUE))) {
+							query.setParameter("statusValue", true);
+						} else if ("disabled".equalsIgnoreCase((String)item.get(GlobalConstant.SEARCHVALUE))) {
+							query.setParameter("statusValue", false);
+						}
+					}
+				}
+			}
 		}
 		
 		Long count = (Long) query.getSingleResult();
