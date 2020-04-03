@@ -24,7 +24,7 @@ import org.toasthub.core.general.handler.ServiceProcessor;
 import org.toasthub.core.general.model.GlobalConstant;
 import org.toasthub.core.general.model.RestRequest;
 import org.toasthub.core.general.model.RestResponse;
-import org.toasthub.core.preference.model.AppCachePageUtil;
+import org.toasthub.core.preference.model.PrefCacheUtil;
 import org.toasthub.security.model.User;
 
 @Service("UserSvc")
@@ -38,7 +38,7 @@ public class UsersSvcImpl implements ServiceProcessor, UsersSvc {
 	UtilSvc utilSvc;
 	
 	@Autowired 
-	AppCachePageUtil appCachePageUtil;
+	PrefCacheUtil prefCacheUtil;
 
 	public void process(RestRequest request, RestResponse response) {
 		String action = (String) request.getParams().get(GlobalConstant.ACTION);
@@ -46,7 +46,7 @@ public class UsersSvcImpl implements ServiceProcessor, UsersSvc {
 		Long count = 0l;
 		switch (action) {
 		case "INIT":
-			appCachePageUtil.getPageInfo(request,response);
+			prefCacheUtil.getPrefInfo(request,response);
 			// set paging
 			this.initParams(request);
 			
@@ -74,7 +74,7 @@ public class UsersSvcImpl implements ServiceProcessor, UsersSvc {
 			break;
 		case "EDIT":
 			// get form info
-			appCachePageUtil.getPageInfo(request, response);
+			prefCacheUtil.getPrefInfo(request, response);
 			// get item info
 			this.item(request, response);
 			break;
