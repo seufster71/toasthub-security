@@ -124,7 +124,7 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 	
 	public void registerFull(RestRequest request, RestResponse response) {
 		try {
-			if (!request.containsParam(PrefCacheUtil.PREFFORMS)) {
+			if (!request.containsParam(PrefCacheUtil.PREFFORMKEYS)) {
 				PrefCacheUtil.addPrefForm(request, "REGISTRATION_FORM");
 			}
 			PrefCacheUtil.addPrefText(request, "GLOBAL_SERVICE","REGISTRATION_SERVICE");
@@ -219,7 +219,7 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 	}
 	
 	public void authenticate(RestRequest request, RestResponse response) {
-		if (!request.containsParam(PrefCacheUtil.PREFFORMS)) {
+		if (!request.containsParam(PrefCacheUtil.PREFFORMKEYS)) {
 			PrefCacheUtil.addPrefForm(request, "LOGIN_FORM");
 		}
 		PrefCacheUtil.addPrefText(request, "GLOBAL_SERVICE","LOGIN_SERVICE");
@@ -282,7 +282,7 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 	
 	public void forgotPassword(RestRequest request, RestResponse response) {
 		try {
-			if (!request.containsParam(PrefCacheUtil.PREFFORMS)) {
+			if (!request.containsParam(PrefCacheUtil.PREFFORMKEYS)) {
 				PrefCacheUtil.addPrefForm(request, "FORGOTPASSWORD_FORM");
 			}
 			PrefCacheUtil.addPrefText(request, "GLOBAL_SERVICE","FORGOTPASSWORD_SERVICE");
@@ -340,7 +340,7 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 	}
 	
 	public void changePassword(RestRequest request, RestResponse response) {
-		if (!request.containsParam(PrefCacheUtil.PREFFORMS)) {
+		if (!request.containsParam(PrefCacheUtil.PREFFORMKEYS)) {
 			PrefCacheUtil.addPrefForm(request, "PASSWORD_CHANGE_FORM");
 		}
 		PrefCacheUtil.addPrefText(request, "GLOBAL_SERVICE","PASSWORD_CHANGE_SERVICE");
