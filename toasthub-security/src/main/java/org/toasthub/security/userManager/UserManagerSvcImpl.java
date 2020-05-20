@@ -125,23 +125,23 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 	public void registerFull(RestRequest request, RestResponse response) {
 		try {
 			if (!request.containsParam(PrefCacheUtil.PREFFORMKEYS)) {
-				PrefCacheUtil.addPrefForm(request, "REGISTRATION_FORM");
+				prefCacheUtil.addPrefForm(request, "REGISTRATION_FORM");
 			}
-			PrefCacheUtil.addPrefText(request, "GLOBAL_SERVICE","REGISTRATION_SERVICE");
-			PrefCacheUtil.addPrefOption(request, "REGISTRATION_SERVICE");
+			prefCacheUtil.addPrefText(request, "GLOBAL_SERVICE","REGISTRATION_SERVICE");
+			prefCacheUtil.addPrefOption(request, "REGISTRATION_SERVICE");
 			
 			prefCacheUtil.getPrefInfo(request,response);
 			
 			// service status
-			PrefOptionValue serviceStatus = PrefCacheUtil.getPrefOption(request, "REGISTRATION_SERVICE", "REGISTRATION_SERVICE");
-			if (serviceStatus.getValue().equals("false")){
-				utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, PrefCacheUtil.getPrefText(request,"GLOBAL_SERVICE","GLOBAL_SERVICE_DISABLED").getValue(), response);
+			PrefOptionValue serviceStatus = prefCacheUtil.getPrefOption(request, "REGISTRATION_SERVICE", "REGISTRATION_SERVICE");
+			if (serviceStatus.equals("false")){
+				utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, prefCacheUtil.getPrefText("GLOBAL_SERVICE","GLOBAL_SERVICE_DISABLED",prefCacheUtil.getLang(request)), response);
 				return;
 			}
 			// validate
 			utilSvc.validateParams(request, response);
 			if ((Boolean) request.getParam(GlobalConstant.VALID) == false) {
-				utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, PrefCacheUtil.getPrefText(request, "GLOBAL_SERVICE", "GLOBAL_SERVICE_VALIDATION_ERROR").getValue(), response);
+				utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, prefCacheUtil.getPrefText("GLOBAL_SERVICE", "GLOBAL_SERVICE_VALIDATION_ERROR",prefCacheUtil.getLang(request)), response);
 				return;
 			}
 			// create empty user to fill
@@ -154,7 +154,7 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 			user.setLang("en");
 			// did password match
 			if(!user.getPassword().equals(user.getVerifyPassword())) {
-				utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, PrefCacheUtil.getPrefText(request, "REGISTRATION_SERVICE", "REGISTRATION_SERVICE_MATCH_PASSWORD_FAILURE").getValue(), response);
+				utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, prefCacheUtil.getPrefText("REGISTRATION_SERVICE", "REGISTRATION_SERVICE_MATCH_PASSWORD_FAILURE",prefCacheUtil.getLang(request)), response);
 				return;
 			}
 			
@@ -182,7 +182,7 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 				// send email confirmation
 				String urlParams = "action=emailconfirm&username="+user.getUsername()+"&token="+emailTokenString;
 				mailSvc.sendEmailConfirmation(user.getEmail() ,urlParams);
-				utilSvc.addStatus(RestResponse.INFO, RestResponse.SUCCESS, PrefCacheUtil.getPrefText(request, "REGISTRATION_SERVICE", "REGISTRATION_SUCCESSFUL").getValue(), response);
+				utilSvc.addStatus(RestResponse.INFO, RestResponse.SUCCESS, prefCacheUtil.getPrefText("REGISTRATION_SERVICE", "REGISTRATION_SUCCESSFUL",prefCacheUtil.getLang(request)), response);
 				
 			} 	catch (Exception e) {
 				// find root exception
@@ -205,11 +205,11 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 				}
 		
 				// need to do some message cleaning
-				utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, PrefCacheUtil.getPrefText(request, "REGISTRATION_SERVICE", "REGISTRATION_FAIL").getValue().concat(message), response);
+				utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, prefCacheUtil.getPrefText("REGISTRATION_SERVICE", "REGISTRATION_FAIL",prefCacheUtil.getLang(request)).concat(message), response);
 			}
 			response.addParam("prefFormFields",null);
 		} catch (Exception e) {
-			utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, PrefCacheUtil.getPrefText(request, "REGISTRATION_SERVICE", "REGISTRATION_FAIL").getValue(), response);
+			utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, prefCacheUtil.getPrefText("REGISTRATION_SERVICE", "REGISTRATION_FAIL",prefCacheUtil.getLang(request)), response);
 			e.printStackTrace();
 		}
 	}
@@ -220,28 +220,28 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 	
 	public void authenticate(RestRequest request, RestResponse response) {
 		if (!request.containsParam(PrefCacheUtil.PREFFORMKEYS)) {
-			PrefCacheUtil.addPrefForm(request, "LOGIN_FORM");
+			prefCacheUtil.addPrefForm(request, "LOGIN_FORM");
 		}
-		PrefCacheUtil.addPrefText(request, "GLOBAL_SERVICE","LOGIN_SERVICE");
+		prefCacheUtil.addPrefText(request, "GLOBAL_SERVICE","LOGIN_SERVICE");
 		
 		prefCacheUtil.getPrefInfo(request,response);
 		
 		// validate
 		utilSvc.validateParams(request, response);
 		if ((Boolean) request.getParam(GlobalConstant.VALID) == false) {
-			utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, PrefCacheUtil.getPrefText(request, "GLOBAL_SERVICE", "GLOBAL_SERVICE_VALIDATION_ERROR").getValue(), response);
+			utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, prefCacheUtil.getPrefText("GLOBAL_SERVICE", "GLOBAL_SERVICE_VALIDATION_ERROR",prefCacheUtil.getLang(request)), response);
 			return;
 		}
 		
 		Map<String,Object> inputList = (Map<String, Object>) request.getParam(GlobalConstant.INPUTFIELDS);
 		if (!inputList.containsKey("LOGIN_FORM_USERNAME")) {
-			utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, PrefCacheUtil.getPrefText(request, "LOGIN_SERVICE", "LOGIN_SERVICE_BADUSERNAME").getValue(), response);
+			utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, prefCacheUtil.getPrefText("LOGIN_SERVICE", "LOGIN_SERVICE_BADUSERNAME",prefCacheUtil.getLang(request)), response);
 			logAccess(new LoginLog("EMPTY_NAME",(String) request.getParam("TENANT_URLDOMAIN"),LoginLog.FAIL_BAD_USER));
 			return;
 		}
 		User user = findUser((String) inputList.get("LOGIN_FORM_USERNAME"));
 		if (user == null){
-			utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, PrefCacheUtil.getPrefText(request, "LOGIN_SERVICE", "LOGIN_SERVICE_BADUSERNAME").getValue(), response);
+			utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, prefCacheUtil.getPrefText("LOGIN_SERVICE", "LOGIN_SERVICE_BADUSERNAME",prefCacheUtil.getLang(request)), response);
 			logAccess(new LoginLog((String) inputList.get("LOGIN_FORM_USERNAME"),(String) request.getParam("TENANT_URLDOMAIN"),LoginLog.FAIL_BAD_USER));
 		} else {
 			request.addParam("password", inputList.get("LOGIN_FORM_PASSWORD"));
@@ -272,10 +272,10 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 				utilSvc.addStatus(RestResponse.INFO, RestResponse.SUCCESS, "Authenticated", response);
 			} else if (!user.isEmailConfirm()){
 				logAccess(new LoginLog(user.getUsername(),(String) request.getParam("TENANT_URLDOMAIN"),LoginLog.FAIL_BAD_EMAIL_CONFIRM));
-				utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, PrefCacheUtil.getPrefText(request, "LOGIN_SERVICE", "LOGIN_SERVICE_CHECK_EMAIL_CONFIRM").getValue(), response);
+				utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, prefCacheUtil.getPrefText("LOGIN_SERVICE", "LOGIN_SERVICE_CHECK_EMAIL_CONFIRM",prefCacheUtil.getLang(request)), response);
 			} else {
 				logAccess(new LoginLog(user.getUsername(),(String) request.getParam("TENANT_URLDOMAIN"),LoginLog.FAIL_BAD_PASS));
-				utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, PrefCacheUtil.getPrefText(request, "LOGIN_SERVICE", "LOGIN_SERVICE_BADPASSWORD").getValue(), response);
+				utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, prefCacheUtil.getPrefText("LOGIN_SERVICE", "LOGIN_SERVICE_BADPASSWORD",prefCacheUtil.getLang(request)), response);
 			}
 		}
 	}
@@ -283,16 +283,16 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 	public void forgotPassword(RestRequest request, RestResponse response) {
 		try {
 			if (!request.containsParam(PrefCacheUtil.PREFFORMKEYS)) {
-				PrefCacheUtil.addPrefForm(request, "FORGOTPASSWORD_FORM");
+				prefCacheUtil.addPrefForm(request, "FORGOTPASSWORD_FORM");
 			}
-			PrefCacheUtil.addPrefText(request, "GLOBAL_SERVICE","FORGOTPASSWORD_SERVICE");
+			prefCacheUtil.addPrefText(request, "GLOBAL_SERVICE","FORGOTPASSWORD_SERVICE");
 			
 			prefCacheUtil.getPrefInfo(request,response);
 			
 			// validate
 			utilSvc.validateParams(request, response);
 			if ((Boolean) request.getParam(GlobalConstant.VALID) == false) {
-				utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, PrefCacheUtil.getPrefText(request, "GLOBAL_SERVICE", "GLOBAL_SERVICE_VALIDATION_ERROR").getValue(), response);
+				utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, prefCacheUtil.getPrefText("GLOBAL_SERVICE", "GLOBAL_SERVICE_VALIDATION_ERROR",prefCacheUtil.getLang(request)), response);
 				return;
 			}
 			
@@ -306,7 +306,7 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 			}
 			
 			if (user == null){
-				utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, PrefCacheUtil.getPrefText(request, "FORGOTPASSWORD_SERVICE", "FORGOTPASSWORD_SERVICE_USERMISSING").getValue(), response);
+				utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, prefCacheUtil.getPrefText("FORGOTPASSWORD_SERVICE", "FORGOTPASSWORD_SERVICE_USERMISSING",prefCacheUtil.getLang(request)), response);
 			} else {
 				try {
 					// create temp password
@@ -325,15 +325,15 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 					response.addParam("forcePasswordChange", true);
 					// send email confirmation
 					mailSvc.sendEmailPasswordReset(user.getUsername(), user.getEmail(), password);
-					utilSvc.addStatus(RestResponse.INFO, RestResponse.SUCCESS, PrefCacheUtil.getPrefText(request, "FORGOTPASSWORD_SERVICE", "FORGOTPASSWORD_SERVICE_SUCCESSFUL").getValue(), response);
+					utilSvc.addStatus(RestResponse.INFO, RestResponse.SUCCESS, prefCacheUtil.getPrefText("FORGOTPASSWORD_SERVICE", "FORGOTPASSWORD_SERVICE_SUCCESSFUL",prefCacheUtil.getLang(request)), response);
 				} catch (Exception e){
-					utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, PrefCacheUtil.getPrefText(request, "FORGOTPASSWORD_SERVICE", "FORGOTPASSWORD_SERVICE_PASSWORD_FAIL").getValue(), response);
+					utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, prefCacheUtil.getPrefText("FORGOTPASSWORD_SERVICE", "FORGOTPASSWORD_SERVICE_PASSWORD_FAIL",prefCacheUtil.getLang(request)), response);
 					e.printStackTrace();
 				}
 				
 			}
 		} catch (Exception e) {
-			utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, PrefCacheUtil.getPrefText(request, "FORGOTPASSWORD_SERVICE", "FORGOTPASSWORD_SERVICE_FAIL").getValue(), response);
+			utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, prefCacheUtil.getPrefText("FORGOTPASSWORD_SERVICE", "FORGOTPASSWORD_SERVICE_FAIL",prefCacheUtil.getLang(request)), response);
 			e.printStackTrace();
 		}
 		
@@ -341,16 +341,16 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 	
 	public void changePassword(RestRequest request, RestResponse response) {
 		if (!request.containsParam(PrefCacheUtil.PREFFORMKEYS)) {
-			PrefCacheUtil.addPrefForm(request, "PASSWORD_CHANGE_FORM");
+			prefCacheUtil.addPrefForm(request, "PASSWORD_CHANGE_FORM");
 		}
-		PrefCacheUtil.addPrefText(request, "GLOBAL_SERVICE","PASSWORD_CHANGE_SERVICE");
+		prefCacheUtil.addPrefText(request, "GLOBAL_SERVICE","PASSWORD_CHANGE_SERVICE");
 		
 		prefCacheUtil.getPrefInfo(request,response);
 		
 		// validate
 		utilSvc.validateParams(request, response);
 		if ((Boolean) request.getParam(GlobalConstant.VALID) == false) {
-			utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, PrefCacheUtil.getPrefText(request, "GLOBAL_SERVICE", "GLOBAL_SERVICE_VALIDATION_ERROR").getValue(), response);
+			utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, prefCacheUtil.getPrefText("GLOBAL_SERVICE", "GLOBAL_SERVICE_VALIDATION_ERROR",prefCacheUtil.getLang(request)), response);
 			return;
 		}
 		
@@ -378,21 +378,21 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 			
 						// return token 
 				    	response.addParam("token", sessionTokenString);
-						mailSvc.sendEmailNotification(username, user.getEmail(), PrefCacheUtil.getPrefText(request, "PASSWORD_CHANGE_SERVICE", "PASSWORD_CHANGE_SERVICE_EMAIL_VERIFY").getValue());
-						utilSvc.addStatus(RestResponse.INFO, RestResponse.SUCCESS, PrefCacheUtil.getPrefText(request, "PASSWORD_CHANGE_SERVICE", "PASSWORD_CHANGE_SERVICE_SUCCESSFUL").getValue(), response);
+						mailSvc.sendEmailNotification(username, user.getEmail(), prefCacheUtil.getPrefText("PASSWORD_CHANGE_SERVICE", "PASSWORD_CHANGE_SERVICE_EMAIL_VERIFY",prefCacheUtil.getLang(request)));
+						utilSvc.addStatus(RestResponse.INFO, RestResponse.SUCCESS, prefCacheUtil.getPrefText("PASSWORD_CHANGE_SERVICE", "PASSWORD_CHANGE_SERVICE_SUCCESSFUL",prefCacheUtil.getLang(request)), response);
 					} else {
-						utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, PrefCacheUtil.getPrefText(request, "PASSWORD_CHANGE_SERVICE", "PASSWORD_CHANGE_SERVICE_OLDPASS_INCORRECT").getValue(), response);
+						utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, prefCacheUtil.getPrefText("PASSWORD_CHANGE_SERVICE", "PASSWORD_CHANGE_SERVICE_OLDPASS_INCORRECT",prefCacheUtil.getLang(request)), response);
 					}
 				} catch (Exception e) {
 					// if failed need to rollback app and single 
-					utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, PrefCacheUtil.getPrefText(request, "PASSWORD_CHANGE_SERVICE", "PASSWORD_CHANGE_SERVICE_PASSCHANGE_FAIL").getValue(), response);
+					utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, prefCacheUtil.getPrefText("PASSWORD_CHANGE_SERVICE", "PASSWORD_CHANGE_SERVICE_PASSCHANGE_FAIL",prefCacheUtil.getLang(request)), response);
 					e.printStackTrace();
 				}
 			} else {
-				utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, PrefCacheUtil.getPrefText(request, "PASSWORD_CHANGE_SERVICE", "PASSWORD_CHANGE_SERVICE_USERMISSING").getValue(), response);
+				utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, prefCacheUtil.getPrefText("PASSWORD_CHANGE_SERVICE", "PASSWORD_CHANGE_SERVICE_USERMISSING",prefCacheUtil.getLang(request)), response);
 			}
 		} else {
-			utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, PrefCacheUtil.getPrefText(request, "PASSWORD_CHANGE_SERVICE", "PASSWORD_CHANGE_SERVICE_USER_PASS_EMPTY").getValue(), response);
+			utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, prefCacheUtil.getPrefText("PASSWORD_CHANGE_SERVICE", "PASSWORD_CHANGE_SERVICE_USER_PASS_EMPTY",prefCacheUtil.getLang(request)), response);
 		}
 	}
 	
@@ -510,15 +510,15 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 	//}
 
 	public void confirmEmail(RestRequest request, RestResponse response){
-		PrefCacheUtil.addPrefForm(request, "CONFIRM_EMAIL_SERVICE");
-		PrefCacheUtil.addPrefText(request, "GLOBAL_SERVICE","CONFIRM_EMAIL_SERVICE");
+		prefCacheUtil.addPrefForm(request, "CONFIRM_EMAIL_SERVICE");
+		prefCacheUtil.addPrefText(request, "GLOBAL_SERVICE","CONFIRM_EMAIL_SERVICE");
 		
 		prefCacheUtil.getPrefInfo(request,response);
 		
 		// validate
 		utilSvc.validateParams(request, response);
 		if ((Boolean) request.getParam(GlobalConstant.VALID) == false) {
-			utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, PrefCacheUtil.getPrefText(request,"GLOBAL_SERVICE","GLOBAL_SERVICE_VALIDATION_ERROR").getValue(), response);
+			utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, prefCacheUtil.getPrefText("GLOBAL_SERVICE","GLOBAL_SERVICE_VALIDATION_ERROR",prefCacheUtil.getLang(request)), response);
 			return;
 		}
 		Map<String,Object> inputList = (Map<String, Object>) request.getParam("inputFields");
@@ -532,21 +532,21 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 		try {
 			user = userManagerDao.findUser(username);
 		} catch (NoResultException noe){
-			utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, PrefCacheUtil.getPrefText(request,"CONFIRM_EMAIL_SERVICE","CONFIRM_EMAIL_SERVICE_USERMISSING").getValue(), response);
+			utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, prefCacheUtil.getPrefText("CONFIRM_EMAIL_SERVICE","CONFIRM_EMAIL_SERVICE_USERMISSING",prefCacheUtil.getLang(request)), response);
 		} catch (Exception e){
-			utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, PrefCacheUtil.getPrefText(request,"CONFIRM_EMAIL_SERVICE","CONFIRM_EMAIL_SERVICE_DBERROR").getValue(), response);
+			utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, prefCacheUtil.getPrefText("CONFIRM_EMAIL_SERVICE","CONFIRM_EMAIL_SERVICE_DBERROR",prefCacheUtil.getLang(request)), response);
 			e.printStackTrace();
 		}
 		if (user.getEmailToken().equals(token)){
 			try {
 				userManagerDao.updateEmailConfirm(user);
-				utilSvc.addStatus(RestResponse.INFO, RestResponse.SUCCESS, PrefCacheUtil.getPrefText(request,"CONFIRM_EMAIL_SERVICE","CONFIRM_EMAIL_SERVICE_SUCCESSFUL").getValue(), response);
+				utilSvc.addStatus(RestResponse.INFO, RestResponse.SUCCESS, prefCacheUtil.getPrefText("CONFIRM_EMAIL_SERVICE","CONFIRM_EMAIL_SERVICE_SUCCESSFUL",prefCacheUtil.getLang(request)), response);
 			} catch (Exception e) {
-				utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, PrefCacheUtil.getPrefText(request,"CONFIRM_EMAIL_SERVICE","CONFIRM_EMAIL_SERVICE_FAIL").getValue(), response);
+				utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, prefCacheUtil.getPrefText("CONFIRM_EMAIL_SERVICE","CONFIRM_EMAIL_SERVICE_FAIL",prefCacheUtil.getLang(request)), response);
 				e.printStackTrace();
 			}
 		} else {
-			utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, PrefCacheUtil.getPrefText(request,"CONFIRM_EMAIL_SERVICE","CONFIRM_EMAIL_SERVICE_FAIL").getValue(), response);
+			utilSvc.addStatus(RestResponse.ERROR, RestResponse.EXECUTIONFAILED, prefCacheUtil.getPrefText("CONFIRM_EMAIL_SERVICE","CONFIRM_EMAIL_SERVICE_FAIL",prefCacheUtil.getLang(request)), response);
 		}
 		
 	}
