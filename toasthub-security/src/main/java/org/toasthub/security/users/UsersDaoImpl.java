@@ -428,4 +428,19 @@ public class UsersDaoImpl implements UsersDao {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void listByUsernameEmail(RestRequest request, RestResponse response) throws Exception {
+		String queryStr = "SELECT NEW User(u.id,u.firstname,u.middlename,u.lastname,u.active,u.username,u.created) FROM User AS u WHERE u.active =:active AND (u.username LIKE :usernameValue OR u.email LIKE :emailValue) ORDER BY u.firstname ASC, u.lastname ASC";
+		Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
+		query.setParameter("active", true);
+		query.setParameter("usernameValue", "%"+((String)request.getParam(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+		query.setParameter("emailValue", "%"+((String)request.getParam(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
+		query.setMaxResults(20);
+		
+		@SuppressWarnings("unchecked")
+		List<User> users = query.getResultList();
+
+		response.addParam(GlobalConstant.ITEMS, users);
+	}
 }

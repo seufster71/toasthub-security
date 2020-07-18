@@ -102,7 +102,7 @@ public class BaseEntity implements Serializable{
 	}
 	*/
 	// Setter/Getter
-	@JsonView({View.Admin.class,View.System.class})
+	@JsonView({View.Admin.class,View.Member.class,View.System.class})
 	@Id	
 	@GeneratedValue(strategy=GenerationType.IDENTITY) 
 	@Column(name = "id")
@@ -113,7 +113,7 @@ public class BaseEntity implements Serializable{
 		this.id = id;
 	}
 	
-	@JsonView({View.Admin.class,View.System.class})
+	@JsonView({View.Admin.class,View.Member.class,View.System.class})
 	@Column(name = "modified",updatable = false, insertable = false)
 	//@org.hibernate.annotations.Generated(org.hibernate.annotations.GenerationTime.ALWAYS)
 	public Instant getModified() {
@@ -123,7 +123,7 @@ public class BaseEntity implements Serializable{
 		this.modified = modified;
 	}
 	
-	@JsonView({View.Admin.class,View.System.class})
+	@JsonView({View.Admin.class,View.Member.class,View.System.class})
 	@Column(name = "created", updatable = false, insertable = false)
 	public Instant getCreated() {
 		return created;
@@ -142,7 +142,7 @@ public class BaseEntity implements Serializable{
 		this.version = version;
 	}
 
-	@JsonView({View.Admin.class,View.System.class})
+	@JsonView({View.Admin.class,View.Member.class,View.System.class})
 	@Column(name = "is_active")
 	public boolean isActive() {
 		return active;
