@@ -32,6 +32,7 @@ import org.toasthub.core.general.model.GlobalConstant;
 import org.toasthub.core.general.model.RestRequest;
 import org.toasthub.core.general.model.RestResponse;
 import org.toasthub.security.model.Role;
+import org.toasthub.security.model.UserRole;
 
 @Repository("RoleDao")
 @Transactional("TransactionManagerSecurity")
@@ -303,7 +304,7 @@ public class RoleDaoImpl implements RoleDao {
 			Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
 		
 			query.setParameter("id", new Long((Integer) request.getParam("userId")));
-			List<Long> roles = query.getResultList();
+			List<UserRole> roles = query.getResultList();
 			
 			response.addParam("userRoles", roles);
 		} else {
