@@ -299,11 +299,11 @@ public class RoleDaoImpl implements RoleDao {
 
 	@Override
 	public void userRoleIds(RestRequest request, RestResponse response) {
-		if (request.containsParam("userId") && !"".equals(request.getParam("userId"))) {
+		if (request.containsParam(GlobalConstant.PARENTID) && !"".equals(request.getParam(GlobalConstant.PARENTID))) {
 			String queryStr = "SELECT new UserRole(ur.id, ur.active, ur.order, ur.startDate, ur.endDate, ur.role.id) FROM UserRole AS ur WHERE ur.user.id =:id";
 			Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
 		
-			query.setParameter("id", new Long((Integer) request.getParam("userId")));
+			query.setParameter("id", new Long((Integer) request.getParam(GlobalConstant.PARENTID)));
 			List<UserRole> roles = query.getResultList();
 			
 			response.addParam("userRoles", roles);
