@@ -259,7 +259,7 @@ public class UserManagerSvcImpl implements ServiceProcessor, UserManagerSvc {
 				}*/
 				response.addParam("authorities", authorities);
 				response.addParam("user", user);
-				//userContext.setCurrentUser(user);
+				
 				
 				//userContext.loginWS(user);
 				//LoginLog loginLog = new LoginLog(user,true);
