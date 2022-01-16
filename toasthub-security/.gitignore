@@ -2,6 +2,7 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 
 ### STS ###
+.sts4-cache
 .apt_generated
 .factorypath
 .springBeans
@@ -19,3 +20,9 @@ nbbuild/
 dist/
 nbdist/
 .nb-gradle/
+
+### MAC
+*.DS_Store
+/node_modules/
+/bin/
+/package-lock.json
