@@ -263,7 +263,7 @@ public class ApplicationDaoImpl implements ApplicationDao {
 			String queryStr = "SELECT a FROM Application AS a JOIN FETCH a.title AS t JOIN FETCH t.langTexts WHERE a.id =:id";
 			Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
 		
-			query.setParameter("id", new Long((String) request.getParam(GlobalConstant.ITEMID)));
+			query.setParameter("id", Long.valueOf((String) request.getParam(GlobalConstant.ITEMID)));
 			Application application = (Application) query.getSingleResult();
 			
 			response.addParam(GlobalConstant.ITEM, application);

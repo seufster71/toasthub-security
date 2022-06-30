@@ -307,7 +307,7 @@ public class PermissionDaoImpl implements PermissionDao {
 			String queryStr = "SELECT p FROM Permission AS p JOIN FETCH p.title AS t JOIN FETCH t.langTexts WHERE p.id =:id";
 			Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
 		
-			query.setParameter("id", new Long((Integer) request.getParam(GlobalConstant.ITEMID)));
+			query.setParameter("id", Long.valueOf((Integer) request.getParam(GlobalConstant.ITEMID)));
 			Permission permission = (Permission) query.getSingleResult();
 			
 			response.addParam(GlobalConstant.ITEM, permission);
@@ -322,7 +322,7 @@ public class PermissionDaoImpl implements PermissionDao {
 			String queryStr = "SELECT new RolePermission(rp.id, rp.active, rp.rights, rp.startDate, rp.endDate, rp.permission.id) FROM RolePermission AS rp WHERE rp.role.id =:id";
 			Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
 		
-			query.setParameter("id", new Long((Integer) request.getParam(GlobalConstant.PARENTID)));
+			query.setParameter("id", Long.valueOf((Integer) request.getParam(GlobalConstant.PARENTID)));
 			List<RolePermission> permissions = query.getResultList();
 			
 			response.addParam("rolePermissions", permissions);

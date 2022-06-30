@@ -108,6 +108,20 @@ public class UsersDaoImpl implements UsersDao {
 		return user;
 	}
 	
+	public User findUserById(Long id) throws Exception {
+		User user = null;
+		try {
+			user = (User) entityManagerSecuritySvc.getInstance()
+			.createQuery("FROM User as u WHERE u.id = :id AND u.archive = :archive")
+			.setParameter("id", id)
+			.setParameter("archive",false)
+			.getSingleResult();
+		} catch (NoResultException noresut){
+			
+		}
+		return user;
+	}
+	
 	public User findUserByEmail(String email) throws Exception {
 		User user = null;
 		try {
@@ -394,7 +408,7 @@ public class UsersDaoImpl implements UsersDao {
 			String queryStr = "SELECT u FROM User AS u WHERE u.id =:id";
 			Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
 		
-			query.setParameter("id", new Long((Integer) request.getParam(GlobalConstant.ITEMID)));
+			query.setParameter("id", Long.valueOf((Integer) request.getParam(GlobalConstant.ITEMID)));
 			User user = (User) query.getSingleResult();
 			
 			response.addParam(GlobalConstant.ITEM, user);
@@ -436,7 +450,7 @@ public class UsersDaoImpl implements UsersDao {
 		query.setParameter("active", true);
 		query.setParameter("usernameValue", "%"+((String)request.getParam(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
 		query.setParameter("emailValue", "%"+((String)request.getParam(GlobalConstant.SEARCHVALUE)).toLowerCase()+"%");
-		query.setMaxResults(20);
+		query.setMaxResults(10);
 		
 		@SuppressWarnings("unchecked")
 		List<User> users = query.getResultList();
