@@ -408,7 +408,7 @@ public class UsersDaoImpl implements UsersDao {
 			String queryStr = "SELECT u FROM User AS u WHERE u.id =:id";
 			Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
 		
-			query.setParameter("id", Long.valueOf((Integer) request.getParam(GlobalConstant.ITEMID)));
+			query.setParameter("id", request.getParamLong(GlobalConstant.ITEMID));
 			User user = (User) query.getSingleResult();
 			
 			response.addParam(GlobalConstant.ITEM, user);

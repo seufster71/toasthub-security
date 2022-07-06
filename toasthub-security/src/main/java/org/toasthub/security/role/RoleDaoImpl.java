@@ -288,7 +288,7 @@ public class RoleDaoImpl implements RoleDao {
 			String queryStr = "SELECT r FROM Role AS r JOIN FETCH r.title AS t JOIN FETCH t.langTexts WHERE r.id =:id";
 			Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
 		
-			query.setParameter("id", Long.valueOf((Integer) request.getParam(GlobalConstant.ITEMID)));
+			query.setParameter("id", request.getParamLong(GlobalConstant.ITEMID));
 			Role role = (Role) query.getSingleResult();
 			
 			response.addParam(GlobalConstant.ITEM, role);
@@ -303,7 +303,7 @@ public class RoleDaoImpl implements RoleDao {
 			String queryStr = "SELECT new UserRole(ur.id, ur.active, ur.order, ur.startDate, ur.endDate, ur.role.id) FROM UserRole AS ur WHERE ur.user.id =:id";
 			Query query = entityManagerSecuritySvc.getInstance().createQuery(queryStr);
 		
-			query.setParameter("id", Long.valueOf((Integer) request.getParam(GlobalConstant.PARENTID)));
+			query.setParameter("id", request.getParamLong(GlobalConstant.PARENTID));
 			List<UserRole> roles = query.getResultList();
 			
 			response.addParam("userRoles", roles);
