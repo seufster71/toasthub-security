@@ -19,10 +19,10 @@ package org.toasthub.security.model;
 import java.io.Serializable;
 import java.time.Instant;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 
-import javax.persistence.Table;
+import jakarta.persistence.Table;
 
 import org.toasthub.core.general.api.View;
 

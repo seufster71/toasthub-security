@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.NoResultException;
+import jakarta.persistence.NoResultException;
 
 import org.picketbox.commons.cipher.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
